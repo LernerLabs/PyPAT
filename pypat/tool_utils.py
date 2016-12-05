@@ -254,7 +254,7 @@ def read_data(fname):
      - .dat
            A .dat file from ptraj.  This can be read in with scipy.io.read_array()
     """
-    import numpy as N
+    import numpy as np
     data = None
     sys.stdout.write("reading "+fname+" ")
     sys.stdout.flush()

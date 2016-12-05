@@ -10,12 +10,12 @@ TODO:
 
 from .sentinel_map import SentinelMap,SentinelNorm
 import glob
-import matplotlib.numerix.ma as ma
+#import matplotlib.numerix.ma as ma
 from . import md_analysis_utils
 import sys
 import pylab,matplotlib,os
 from matplotlib import mlab
-import numpy as N
+import numpy as np
 import scipy.io
 import pprint
 import bz2
@@ -90,11 +90,11 @@ rgb1 = (0.,0.,0.)
 rgb2 = (1.,1.,1.)
 #my_sentinelcmap = SentinelMap(my_cmap,sentinels={sentinel:rgb})
 #my_sentinelnorm = SentinelNorm(ignore=[sentinel,],vmin=-1.0,vmax=1.0)
-sentinel_maps_and_norms = {'Normal':(SentinelMap(my_cmap,sentinels={sentinel1:rgb1,sentinel2:rgb2}),
-                                     SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
+sentinel_maps_and_norms = {'Normal':(SentinelMap(my_cmap),#,sentinels={sentinel1:rgb1,sentinel2:rgb2}),
+                                     SentinelNorm(vmin=-1.0,vmax=1.0)#,ignore=[sentinel1,sentinel2,])
                                      ),
-                           'Scaled':(SentinelMap(my_scaled_cmap,sentinels={sentinel1:rgb1,sentinel2:rgb2}),
-                                     SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
+                           'Scaled':(SentinelMap(my_scaled_cmap),#sentinels={sentinel1:rgb1,sentinel2:rgb2}),
+                                     SentinelNorm(vmin=-1.0,vmax=1.0)#,ignore=[sentinel1,sentinel2,])
                                      ),
                            }
     
@@ -104,8 +104,9 @@ sentinel_maps_and_norms = {'Normal':(SentinelMap(my_cmap,sentinels={sentinel1:rg
 ##                                     ),
 ##                           }
 for map in [m for m in list(pylab.cm.datad.keys()) if not m.endswith("_r")]:
-    sentinel_maps_and_norms[map] = (SentinelMap(pylab.cm.get_cmap(map),sentinels={sentinel1:rgb1,sentinel2:rgb2}),
-                                     SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
+    sentinel_maps_and_norms[map] = (SentinelMap(pylab.cm.get_cmap(map)),#sentinels={sentinel1:rgb1,sentinel2:rgb2}),
+                                     SentinelNorm(vmin=-1.0,vmax=1.0)#,ignore=[sentinel1,sentinel2,])
+                                     #SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
                                     )
 
                                      
@@ -189,8 +190,8 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
         for resi in mark_bottom_resis:
             mark_bottom_atoms += atom_id_map[resi]
         orig_size = data.shape[0]
-        bottom_bar = N.array([[(sentinel1 if i in mark_bottom_atoms else sentinel2) for i in range(orig_size)]])
-        left_bar =   N.array([(sentinel1 if i in mark_left_atoms else sentinel2) for i in range(orig_size)])
+        bottom_bar = np.array([[(sentinel1 if i in mark_bottom_atoms else sentinel2) for i in range(orig_size)]])
+        left_bar =   np.array([(sentinel1 if i in mark_left_atoms else sentinel2) for i in range(orig_size)])
         left_bar.shape = (len(left_bar),1)
         
         if plot_type == 'mainheavy':
@@ -234,10 +235,10 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
         data = scipy.take(data,[i for i in range(data.shape[0]) if i not in skip_resis],axis=0)
         data = scipy.take(data,[i for i in range(data.shape[1]) if i not in skip_resis],axis=1)
         orig_size = data.shape[0]
-        bottom_bar = N.array([[(sentinel1 if i in mark_bottom_resis else sentinel2) for i in range(orig_size)]])
+        bottom_bar = np.array([[(sentinel1 if i in mark_bottom_resis else sentinel2) for i in range(orig_size)]])
         left_bar = [(sentinel1 if i in mark_left_resis else sentinel2) for i in range(orig_size)]
         new_shape = (len(left_bar),1)
-        left_bar = N.array(left_bar)
+        left_bar = np.array(left_bar)
         left_bar.shape = new_shape
 
     if mark_resis:
@@ -249,14 +250,14 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
         # bar at that point.
         #
         num_blocks = int(0.01*max(data.shape))+1
-        for i in range(num_blocks): data = N.concatenate((bottom_bar,data))
-        padding = N.array([sentinel2,]*num_blocks)
+        for i in range(num_blocks): data = np.concatenate((bottom_bar,data))
+        padding = np.array([sentinel2,]*num_blocks)
         padding.shape = (num_blocks,1)
         new_shape = (len(left_bar)+len(padding),1)
-        left_bar = N.concatenate((padding,left_bar))
-        for i in range(num_blocks): data = N.concatenate((left_bar,data),axis=1)
+        left_bar = np.concatenate((padding,left_bar))
+        for i in range(num_blocks): data = np.concatenate((left_bar,data),axis=1)
         padding.shape = 1,num_blocks
-        bottom_bar = N.concatenate((padding,bottom_bar),axis=1)
+        bottom_bar = np.concatenate((padding,bottom_bar),axis=1)
 
        
     _cmap,_norm = sentinel_maps_and_norms[cmap]
@@ -278,7 +279,7 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
     if mark_resis and highlight:
         # Highlight the selected parts
         if highlight_mode in ('positive','negative'):
-            mask = N.zeros(data.shape)
+            mask = np.zeros(data.shape)
             for i in range(data.shape[0]):
                 if left_bar[i] == sentinel1:
                     mask[i,] = True
@@ -286,9 +287,9 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
                 if bottom_bar[0,j] == sentinel1:
                     mask[:,j] = True
             if highlight_mode == 'positive':
-                data = N.ma.masked_where(N.logical_not(mask),data)
+                data = np.ma.masked_where(np.logical_not(mask),data)
             elif highlight_mode == 'negative':
-                data = N.ma.masked_where(mask,data)
+                data = np.ma.masked_where(mask,data)
             _cmap.set_bad('white',alpha=highlight)
             
             plotter(data,cmap=_cmap,norm=_norm,
@@ -330,7 +331,7 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
                 self.numticks=numticks
             def __call__(self):
                 'Return the location of the ticks'
-                ticklocs = mlab.linspace(self.vmin,self.vmax,self.numticks)
+                ticklocs = np.linspace(self.vmin,self.vmax,self.numticks)
                 return ticklocs
 
         offset = (num_blocks if mark_resis else 0)
@@ -342,11 +343,11 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
         ax = pylab.gca()
         ax.yaxis.set_major_formatter(ymajorFormatter)
         ax.yaxis.set_minor_locator(yminorLocator)
-        pylab.yticks(mlab.linspace(offset,data.shape[0],9))
+        pylab.yticks(np.linspace(offset,data.shape[0],9))
 
         ax.xaxis.set_major_formatter(xmajorFormatter)
         ax.xaxis.set_minor_locator(xminorLocator)
-        pylab.xticks(mlab.linspace(offset,data.shape[1],9))
+        pylab.xticks(np.linspace(offset,data.shape[1],9))
     else:
         pylab.xticks([])
         pylab.yticks([])
@@ -392,7 +393,7 @@ def make_correl_plots_for_movie(structures,
     for cmap in cmaps:
         for detail_level in detail_levels:
             fname = 'BigMovieImages'+cmap+detail_level+'.html'
-            fout = file(fname,'w')
+            fout = open(fname,'w')
             fout.write('<html><head><title>Big Movie Images</title></head><body>')
             fout.write('<h1>'+cmap+' '+detail_level+'</h1><table>')
             made_plots_already = False

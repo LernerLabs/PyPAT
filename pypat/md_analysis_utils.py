@@ -50,9 +50,11 @@ def setup_ca(reference_fname,indexing=1,skip_resis=[]):
     mainchain_nonhydro_atom_id_list = []
     sidechain_hydro_atom_id_list = []
     sidechain_nonhydro_atom_id_list = []
-    f = file(reference_fname)
+    f = open(reference_fname)
     generated_atom_id = 1
     for line in f:
+        # This is an annoyingly hardcoded bit. we should use a real PDB parser.
+        line = line.replace('NDPH',' NDP ')
         parts = line.split()
         if parts[0] not in ['ATOM','HETATM']:
             continue
@@ -158,7 +160,7 @@ def parse_ca(fname,master_residue_list):
         sys.stdout.flush()
     residue_list = []
     coords = []
-    f = file(fname)
+    f = open(fname)
     for line in f:
         parts = line.split()
         if parts[0] not in ['ATOM','HETATM']:
@@ -191,7 +193,7 @@ def parse_all(fname,master_residue_list):
         sys.stdout.flush()
     coords = []
     residue_list = []
-    f = file(fname)
+    f = open(fname)
     for line in f:
         parts = line.split()
         if parts[0] not in ['ATOM','HETATM']:
@@ -377,50 +379,50 @@ def write_rmsds_and_ile50leu28ca_dists(ref_fname,
 
 
         ile50leu28min_dists = [ile50leu28min_dist(coords,include_hydro=False,vdw=False) for coords in every_atom_coords]
-        f = file(os.path.join(out_dir,ileleu_min_out_fname),'w')
+        f = open(os.path.join(out_dir,ileleu_min_out_fname),'w')
         for ileleud in ile50leu28min_dists: f.write('%s\n'%ileleud)
         f.close()
 
         ile50leu28min_dists = [ile50leu28min_dist(coords,include_hydro=True,vdw=False) for coords in every_atom_coords]
-        f = file(os.path.join(out_dir,ileleu_min_hydro_out_fname),'w')
+        f = open(os.path.join(out_dir,ileleu_min_hydro_out_fname),'w')
         for ileleud in ile50leu28min_dists: f.write('%s\n'%ileleud)
         f.close()
 
         ile50leu28min_dists = [ile50leu28min_dist(coords,include_hydro=False,vdw=True) for coords in every_atom_coords]
-        f = file(os.path.join(out_dir,ileleu_min_vdw_out_fname),'w')
+        f = open(os.path.join(out_dir,ileleu_min_vdw_out_fname),'w')
         for ileleud in ile50leu28min_dists: f.write('%s\n'%ileleud)
         f.close()
 
         ile50leu28min_dists = [ile50leu28min_dist(coords,include_hydro=True,vdw=True) for coords in every_atom_coords]
-        f = file(os.path.join(out_dir,ileleu_min_vdw_hydro_out_fname),'w')
+        f = open(os.path.join(out_dir,ileleu_min_vdw_hydro_out_fname),'w')
         for ileleud in ile50leu28min_dists: f.write('%s\n'%ileleud)
         f.close()
 
         nap160O7phe31cg_dists = [bynumber_dist(coords,2499-1,471-1) for coords in every_atom_coords]
-        f = file(os.path.join(out_dir,nap160phe31_out_fname),'w')
+        f = open(os.path.join(out_dir,nap160phe31_out_fname),'w')
         for npd in nap160O7phe31cg_dists: f.write('%s\n'%npd)
         f.close()
 
         nap160O7phe31_min_dists = [nap16O7phe31min_dist(coords,include_hydro=False) for coords in every_atom_coords]
-        f = file(os.path.join(out_dir,nap160phe31_min_out_fname),'w')
+        f = open(os.path.join(out_dir,nap160phe31_min_out_fname),'w')
         for npd in nap160O7phe31_min_dists: f.write('%s\n'%npd)
         f.close()
 
         nap160O7phe31_min_hydro_dists = [nap16O7phe31min_dist(coords,include_hydro=True) for coords in every_atom_coords]
-        f = file(os.path.join(out_dir,nap160phe31_min_hydro_out_fname),'w')
+        f = open(os.path.join(out_dir,nap160phe31_min_hydro_out_fname),'w')
         for npd in nap160O7phe31_min_hydro_dists: f.write('%s\n'%npd)
         f.close()
         
         if 0:
 
             ile50leu28ca_dists = [ile50leu28ca_dist(coords) for coords in all_coords]
-            f = file(os.path.join(out_dir,ileleu_out_fname),'w')
+            f = open(os.path.join(out_dir,ileleu_out_fname),'w')
             for ileleud in ile50leu28ca_dists: f.write('%s\n'%ileleud)
             f.close()
 
 
             ile50asp27ca_dists = [ile50asp27ca_dist(coords) for coords in all_coords]
-            f = file(os.path.join(out_dir,ileasp_out_fname),'w')
+            f = open(os.path.join(out_dir,ileasp_out_fname),'w')
             for ileaspd in ile50asp27ca_dists: f.write('%s\n'%ileaspd)
             f.close()
 
@@ -495,7 +497,7 @@ def write_rmsds_and_ile50leu28ca_dists(ref_fname,
                 print("structure_parts",structure_parts,"residues",structure_parts_map[structure_parts])
                 start,stop = structure_parts_map[structure_parts]
                 rmsds = [simple_rmsd(reference_coords[start:stop],coords[start:stop]) for coords in all_coords]
-            f = file(this_fname,'w')
+            f = open(this_fname,'w')
             for rmsd in rmsds: f.write('%s\n'%rmsd)
             f.close()
 
@@ -507,9 +509,11 @@ def get_resi_to_atom_id_map(pdb_fname,indexing=1):
     this in as a hack for now.
     """
     atom_id_map = {}
-    f = file(pdb_fname)
+    f = open(pdb_fname)
     generated_atom_id = 1
     for line in f:
+        # This is an annoyingly hardcoded bit. we should use a real PDB parser.
+        line = line.replace('NDPH',' NDP ')
         parts = line.split()
         if parts[0] not in ['ATOM','HETATM']:
             continue
@@ -631,14 +635,12 @@ def write_max_min_ca_resi_versions(fname,ref_pdb_fname,non_ca_resis=[160,],overw
         if fnames[d].endswith('.bz2'):
             f = bz2.BZ2File(fnames[d],'w')
         else:
-            f = file(fnames[d],'w')
+            f = open(fnames[d],'w')
             
         print("writing",fnames[d])
         io.write_array(f,data[d])
         f.close()
     
-from string import upper, capitalize
-
 def ThrLett_to_OneLett(resi, suppress_alert = True):
     """
     Usage:  ThrLett_to_OneLett(resi, suppress_alert = True)
@@ -651,7 +653,7 @@ def ThrLett_to_OneLett(resi, suppress_alert = True):
     the residue was not recognized
     """
 
-    resiu = upper(resi)
+    resiu = resi.upper()
     if resiu == 'ALA':
         return 'A'
     elif resiu == 'ARG' or resiu == 'ARN':
@@ -761,7 +763,7 @@ def OneLett_to_ThrLett(resi, cap = 'standard', suppress_alert = True):
         res3 = resi
 
     if cap == 'all':
-        res3 = upper(res3)
+        res3 = res3.upper()
     elif cap != 'standard':
         print('Ignoring invalid option for cap:', cap)
 
@@ -795,63 +797,64 @@ def get_resinum_to_resi_map(resiname_file, offset = 0, indexing = 1, aa_code = 3
     resi_map = {}
 
     if resiname_file == None:
-	print('Warning:  No prmtop or PDB file given.\n' + \
-	      '  No residue number information will be presented.')
-	for i in range(10000):
-	    resi_map[i] = str(i)
-	return resi_map
+        print('Warning:  No prmtop or PDB file given.\n' + \
+              '  No residue number information will be presented.')
+    for i in range(10000):
+        resi_map[i] = str(i)
+    return resi_map
 
     try:
-	f = file(resiname_file)
+        f = file(resiname_file)
     except IOError:
-	print('Warning:  Could not open ' + resiname_file + '.\n' + \
-	      '  No residue number information will be presented.')
-	for i in range(10000):
-	    resi_map[i] = str(i)
-	return resi_map
+        print('Warning:  Could not open ' + resiname_file + '.\n' + \
+              '  No residue number information will be presented.')
+    for i in range(10000):
+        resi_map[i] = str(i)
+    return resi_map
 
     # If the file is a prmtop file...
 
     if not resiname_file.endswith('.pdb'):
-	resi_num = 1
-	residue_section = False
-	for line in f:
-	    if line.startswith('%FLAG RESIDUE_POINTER'):
-		break
+        resi_num = 1
+        
+        residue_section = False
+        for line in f:
+            if line.startswith('%FLAG RESIDUE_POINTER'):
+                break
             if line.startswith('%FLAG RESIDUE_LABEL'):
                 residue_section = True
-	    if not residue_section or line.startswith('%F'):
-		continue
-	    else:
-		residue_names = line.split()
-		for resi_name in residue_names:
-		    if aa_code == 1:
-			resi_name = ThrLett_to_OneLett(resi_name)
-		    resi_name = capitalize(resi_name) + str(resi_num + offset)
-		    resi_map[resi_num + indexing - 1] = resi_name
-		    resi_num += 1
+            if not residue_section or line.startswith('%F'):
+                continue
+            else:
+                residue_names = line.split()
+        for resi_name in residue_names:
+            if aa_code == 1:
+                resi_name = ThrLett_to_OneLett(resi_name)
+                resi_name = resi_name.capitalize() + str(resi_num + offset)
+                resi_map[resi_num + indexing - 1] = resi_name
+                resi_num += 1
 
     # If the file is a PDB file...
 
     else:
-	for line in f:
-	    if not (line.startswith('ATOM') or line.startswith('HETATM')):
-		continue
-	    resi_name = line[17:21].strip()
+        for line in f:
+            if not (line.startswith('ATOM') or line.startswith('HETATM')):
+                continue
+            resi_name = line[17:21].strip()
             resi_num = int(line[22:26].strip())
-	    if aa_code == 1:
-		resi_name = ThrLett_to_OneLett(resi_name)
-	    resi_name = capitalize(resi_name) + str(resi_num + offset)
-	    resi_map[resi_num + indexing - 1] = resi_name
+            if aa_code == 1:
+                resi_name = ThrLett_to_OneLett(resi_name)
+                resi_name = resi_name.capitalize() + str(resi_num + offset)
+                resi_map[resi_num + indexing - 1] = resi_name
     
     f.close()
 
     if not resi_map:
         print("Warning: Could not extract residue information from prmtop or PDB file.\n")
         print("  No residue number information will be presented.")
-	for i in range(10000):
-	    resi_map[i] = str(i)
-	return resi_map
-        
+    for i in range(10000):
+        resi_map[i] = str(i)
+    return resi_map
+    
     return resi_map
 

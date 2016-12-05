@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import pylab
-from matplotlib.colors import Colormap, LinearSegmentedColormap, normalize, Normalize
-from matplotlib import numerix as nx
-import matplotlib.numerix.ma as ma
-from matplotlib.numerix import array, arange, alltrue
-from types import IntType, FloatType, ListType
+#from matplotlib.colors import Colormap, LinearSegmentedColormap, normalize, Normalize
+#from matplotlib.colors import Colormap, LinearSegmentedColormap#, normalize, Normalize
+from matplotlib.colors import Colormap, LinearSegmentedColormap, Normalize
+#from matplotlib import numerix as nx
+#import matplotlib.numerix.ma as ma
+#from matplotlib.numerix import array, arange, alltrue
+#from types import IntType, FloatType, ListType
 
 """
 Sentinel maps are like normal color maps, but you can use
@@ -13,248 +15,12 @@ a sentinel value that later gets assigned specific colors.
 
 Based on code from the scipy wiki, modified by Michael Lerner.
 """
-class SentinelMap(Colormap):
-    def __init__(self, cmap, sentinels={}):
-        # boilerplate stuff
-        self.N = cmap.N
-        self.name = 'SentinelMap'
-        self.cmap = cmap
-        self.sentinels = sentinels
-        self._rgba_bad = (0.0, 0.0, 0.0, 0.0) # If bad, don't paint anything.
-        self._rgba_under = None
-        self._rgba_over = None
-        self._i_under = cmap.N
-        self._i_over = cmap.N+1
-        self._i_bad = cmap.N+2
-        self._isinit = False
+def SentinelMap(cmap):
+    return cmap
 
-        for rgb in list(sentinels.values()):
-            if len(rgb)!=3:
-                raise ValueError('sentinel color must be RGB')
-
-    def _init(self):
-        self.cmap._init()
-        self._isinit = self.cmap._isinit
-    def is_gray(self):
-        return self.cmap.is_gray()
-    def set_bad(self,*args,**kwargs):
-        return self.cmap.set_bad(*args,**kwargs)
-    def __call__(self, scaledImageData, alpha=1,bytes=False):
-        # assumes the data is already normalized (ignoring sentinels)
-        # clip to be on the safe side
-        if bytes == True:
-            raise ValueError("Don't handle bytes")
-        rgbaValues = self.cmap(nx.clip(scaledImageData, 0.,1.))
-        for sentinel,rgb in list(self.sentinels.items()):
-            r,g,b = rgb
-            if (scaledImageData==sentinel).max():
-                rgbaValues[...,0] =  nx.where(scaledImageData==sentinel, r, rgbaValues[...,0])
-                rgbaValues[...,1] =  nx.where(scaledImageData==sentinel, g, rgbaValues[...,1])
-                rgbaValues[...,2] =  nx.where(scaledImageData==sentinel, b, rgbaValues[...,2])
-                rgbaValues[...,3] =  nx.where(scaledImageData==sentinel, alpha, rgbaValues[...,3])
-        return rgbaValues
-
-class SentinelNorm(normalize):
-    """
-    Leave the sentinel unchanged
-    """
-    def __init__(self, ignore=[], vmin=None, vmax=None, clip = True):
-        self.vmin=vmin
-        self.vmax=vmax
-        self.clip = clip
-        #print 'in init vmax=',vmax,'vmin=',vmin
-        
-        if type(ignore) in [IntType, FloatType]:
-            self.ignore = [ignore]
-        else:
-            self.ignore = list(ignore)
-        self.ignore_mask=None
-        
-    def __call__(self, value, clip=None):
-        
-        if clip is None:
-            clip = self.clip
-
-        # ensure that we have a masked array val to work with
-        if isinstance(value, (int, float)):
-            vtype = 'scalar'
-            val = ma.array([value])
-        else:
-            vtype = 'array'
-            if ma.isMA(value):
-                val = value
-            else:
-                val = ma.asarray(value)
-
-        # create ignore_mask, val=sentinel1 | val= sentinel2..
-        if self.ignore is not None:
-            self.get_ignore_mask(val)
-            
-        # find min and max over points not masked by ignore_mask or by original mask of val
-        self.autoscale(val)
-
-        # now do scaling
-        vmin, vmax = self.vmin, self.vmax
-        if vmin > vmax:
-            if False in val.mask:
-                raise ValueError("minvalue must be less than or equal to maxvalue")
-            else:
-                # array is completely masked. doesn't matter what values are for plot
-                return 0.*value
-        elif vmin==vmax:
-            return 0.*value
-        else:
-            # scale points not masked by ignore_mask or by original mask of val
-            scale = 1./(vmax-vmin)
-            result = (val-vmin)*scale
-            if clip:
-                result = nx.clip(result,0.,1.)
-            # set result over sentinel points to sentinel values 
-            if self.ignore is not None:
-                result[self.ignore_mask]=val.data[self.ignore_mask]
-                
-        if vtype == 'scalar':
-            result = result[0]
-        return result
+class SentinelNorm(Normalize):
+    pass
     
-    def get_ignore_mask(self, A):
-        if ma.isMA(A):
-            A=A.data
-        if self.ignore is not None:
-            self.ignore_mask = False
-            for ignore in self.ignore:
-                self.ignore_mask |= A==ignore
-
-
-    def autoscale(self, A):
-        # self.scaled is method in base class Normalize [colors.py], is True if self.vmin,vmax already defined
-        if not self.scaled():
-            if self.ignore is not None:
-                if self.ignore_mask is None:
-                    self.get_ignore_mask(A)
-                A = ma.masked_where(self.ignore_mask,A)
-
-            if self.vmin is None: self.vmin = A.min()
-            if self.vmax is None: self.vmax = A.max()
-            
-    def inverse(self, value):
-        if not self.scaled():
-            raise ValueError("Not invertible until scaled")
-        vmin, vmax = self.vmin, self.vmax
-
-        if isinstance(value, (int, float)):
-            return vmin + value * (vmax - vmin)
-        else:
-            val = ma.asarray(value)
-            result = vmin + val * (vmax - vmin)
-            if self.ignore is not None:
-                if self.ignore_mask is None:
-                    self.get_ignore_mask(value)
-                result[self.ignore_mask]=val.data[self.ignore_mask]
-            return result
-class SentinelNormGobble(normalize):
-    """
-    Leave the sentinel unchanged
-    """
-    def __init__(self, ignore=[], vmin=None, vmax=None, clip = True):
-        self.vmin=vmin
-        self.vmax=vmax
-        self.clip = clip
-        
-        if type(ignore) in [IntType, FloatType]:
-            self.ignore = [ignore]
-        else:
-            self.ignore = list(ignore)
-        self.ignore_mask=None
-        
-    def __call__(self, value, clip=None):
-        
-        if clip is None:
-            clip = self.clip
-
-        # ensure that we have a masked array val to work with
-        if isinstance(value, (int, float)):
-            vtype = 'scalar'
-            val = ma.array([value])
-        else:
-            vtype = 'array'
-            if ma.isMA(value):
-                val = value
-            else:
-                val = ma.asarray(value)
-
-        # create ignore_mask, val=sentinel1 | val= sentinel2..
-        if self.ignore is not None:
-            self.get_ignore_mask(val)
-            
-        # find min and max over points not masked by ignore_mask or by original mask of val
-        self.autoscale(val)
-
-        # now do scaling
-        vmin, vmax = self.vmin, self.vmax
-        if vmin > vmax:
-            if False in val.mask:
-                raise ValueError("minvalue must be less than or equal to maxvalue")
-            else:
-                # array is completely masked. doesn't matter what values are for plot
-                return 0.*value
-        elif vmin==vmax:
-            return 0.*value
-        else:
-            # scale points not masked by ignore_mask or by original mask of val
-            scale = 1./(vmax-vmin)
-            result = (val-vmin)*scale
-            if clip:
-                result = nx.clip(result,0.,1.)
-            # set result over sentinel points to sentinel values 
-            if self.ignore is not None:
-                print("Now to ignore",self.ignore_mask.shape)
-                print("result",result.shape)
-                print("val.data",val.data.shape)
-                result[self.ignore_mask]=val.data[self.ignore_mask]
-                
-        if vtype == 'scalar':
-            result = result[0]
-        return result
-    
-    def get_ignore_mask(self, A):
-        if ma.isMA(A):
-            A=A.data
-        if self.ignore is not None:
-            self.ignore_mask = False
-            for ignore in self.ignore:
-                self.ignore_mask |= A==ignore
-
-
-    def autoscale(self, A):
-        # self.scaled is method in base class Normalize [colors.py], is True if self.vmin,vmax already defined
-        if not self.scaled():
-            if self.ignore is not None:
-                if self.ignore_mask is None:
-                    self.get_ignore_mask(A)
-                A = ma.masked_where(self.ignore_mask,A)
-
-            if self.vmin is None: self.vmin = A.min()
-            if self.vmax is None: self.vmax = A.max()
-            
-    def inverse(self, value):
-        if not self.scaled():
-            raise ValueError("Not invertible until scaled")
-        vmin, vmax = self.vmin, self.vmax
-
-        if isinstance(value, (int, float)):
-            return vmin + value * (vmax - vmin)
-        else:
-            val = ma.asarray(value)
-            result = vmin + val * (vmax - vmin)
-            if self.ignore is not None:
-                if self.ignore_mask is None:
-                    self.get_ignore_mask(value)
-                print("Now to ignore",self.ignore_mask.shape)
-                print("result",result.shape)
-                print("val.data",val.data.shape)
-                result[self.ignore_mask]=val.data[self.ignore_mask]
-            return result
 
 
 
@@ -328,6 +94,255 @@ cdict = {'red':  (((-1.0+1)/2,32/255, 32/255),
                   (( 0.9+1)/2, 27/255, 27/255),
                   (( 1.0+1)/2, 33/255, 33/255)),
          }
+
+
+
+if 0:
+    class SentinelMapOld(Colormap):
+        def __init__(self, cmap, sentinels={}):
+            # boilerplate stuff
+            self.N = cmap.N
+            self.name = 'SentinelMap'
+            self.cmap = cmap
+            self.sentinels = sentinels
+            self._rgba_bad = (0.0, 0.0, 0.0, 0.0) # If bad, don't paint anything.
+            self._rgba_under = None
+            self._rgba_over = None
+            self._i_under = cmap.N
+            self._i_over = cmap.N+1
+            self._i_bad = cmap.N+2
+            self._isinit = False
+
+            for rgb in list(sentinels.values()):
+                if len(rgb)!=3:
+                    raise ValueError('sentinel color must be RGB')
+
+        def _init(self):
+            self.cmap._init()
+            self._isinit = self.cmap._isinit
+        def is_gray(self):
+            return self.cmap.is_gray()
+        def set_bad(self,*args,**kwargs):
+            return self.cmap.set_bad(*args,**kwargs)
+        def __call__(self, scaledImageData, alpha=1,bytes=False):
+            # assumes the data is already normalized (ignoring sentinels)
+            # clip to be on the safe side
+            if bytes == True:
+                raise ValueError("Don't handle bytes")
+            rgbaValues = self.cmap(nx.clip(scaledImageData, 0.,1.))
+            for sentinel,rgb in list(self.sentinels.items()):
+                r,g,b = rgb
+                if (scaledImageData==sentinel).max():
+                    rgbaValues[...,0] =  nx.where(scaledImageData==sentinel, r, rgbaValues[...,0])
+                    rgbaValues[...,1] =  nx.where(scaledImageData==sentinel, g, rgbaValues[...,1])
+                    rgbaValues[...,2] =  nx.where(scaledImageData==sentinel, b, rgbaValues[...,2])
+                    rgbaValues[...,3] =  nx.where(scaledImageData==sentinel, alpha, rgbaValues[...,3])
+            return rgbaValues
+
+    class SentinelNormOld(normalize):
+        """
+        Leave the sentinel unchanged
+        """
+        def __init__(self, ignore=[], vmin=None, vmax=None, clip = True):
+            self.vmin=vmin
+            self.vmax=vmax
+            self.clip = clip
+            #print 'in init vmax=',vmax,'vmin=',vmin
+
+            if type(ignore) in [IntType, FloatType]:
+                self.ignore = [ignore]
+            else:
+                self.ignore = list(ignore)
+            self.ignore_mask=None
+
+        def __call__(self, value, clip=None):
+
+            if clip is None:
+                clip = self.clip
+
+            # ensure that we have a masked array val to work with
+            if isinstance(value, (int, float)):
+                vtype = 'scalar'
+                val = ma.array([value])
+            else:
+                vtype = 'array'
+                if ma.isMA(value):
+                    val = value
+                else:
+                    val = ma.asarray(value)
+
+            # create ignore_mask, val=sentinel1 | val= sentinel2..
+            if self.ignore is not None:
+                self.get_ignore_mask(val)
+
+            # find min and max over points not masked by ignore_mask or by original mask of val
+            self.autoscale(val)
+
+            # now do scaling
+            vmin, vmax = self.vmin, self.vmax
+            if vmin > vmax:
+                if False in val.mask:
+                    raise ValueError("minvalue must be less than or equal to maxvalue")
+                else:
+                    # array is completely masked. doesn't matter what values are for plot
+                    return 0.*value
+            elif vmin==vmax:
+                return 0.*value
+            else:
+                # scale points not masked by ignore_mask or by original mask of val
+                scale = 1./(vmax-vmin)
+                result = (val-vmin)*scale
+                if clip:
+                    result = nx.clip(result,0.,1.)
+                # set result over sentinel points to sentinel values 
+                if self.ignore is not None:
+                    result[self.ignore_mask]=val.data[self.ignore_mask]
+
+            if vtype == 'scalar':
+                result = result[0]
+            return result
+
+        def get_ignore_mask(self, A):
+            if ma.isMA(A):
+                A=A.data
+            if self.ignore is not None:
+                self.ignore_mask = False
+                for ignore in self.ignore:
+                    self.ignore_mask |= A==ignore
+
+
+        def autoscale(self, A):
+            # self.scaled is method in base class Normalize [colors.py], is True if self.vmin,vmax already defined
+            if not self.scaled():
+                if self.ignore is not None:
+                    if self.ignore_mask is None:
+                        self.get_ignore_mask(A)
+                    A = ma.masked_where(self.ignore_mask,A)
+
+                if self.vmin is None: self.vmin = A.min()
+                if self.vmax is None: self.vmax = A.max()
+
+        def inverse(self, value):
+            if not self.scaled():
+                raise ValueError("Not invertible until scaled")
+            vmin, vmax = self.vmin, self.vmax
+
+            if isinstance(value, (int, float)):
+                return vmin + value * (vmax - vmin)
+            else:
+                val = ma.asarray(value)
+                result = vmin + val * (vmax - vmin)
+                if self.ignore is not None:
+                    if self.ignore_mask is None:
+                        self.get_ignore_mask(value)
+                    result[self.ignore_mask]=val.data[self.ignore_mask]
+                return result
+    class SentinelNormGobbleOld(normalize):
+        """
+        Leave the sentinel unchanged
+        """
+        def __init__(self, ignore=[], vmin=None, vmax=None, clip = True):
+            self.vmin=vmin
+            self.vmax=vmax
+            self.clip = clip
+
+            if type(ignore) in [IntType, FloatType]:
+                self.ignore = [ignore]
+            else:
+                self.ignore = list(ignore)
+            self.ignore_mask=None
+
+        def __call__(self, value, clip=None):
+
+            if clip is None:
+                clip = self.clip
+
+            # ensure that we have a masked array val to work with
+            if isinstance(value, (int, float)):
+                vtype = 'scalar'
+                val = ma.array([value])
+            else:
+                vtype = 'array'
+                if ma.isMA(value):
+                    val = value
+                else:
+                    val = ma.asarray(value)
+
+            # create ignore_mask, val=sentinel1 | val= sentinel2..
+            if self.ignore is not None:
+                self.get_ignore_mask(val)
+
+            # find min and max over points not masked by ignore_mask or by original mask of val
+            self.autoscale(val)
+
+            # now do scaling
+            vmin, vmax = self.vmin, self.vmax
+            if vmin > vmax:
+                if False in val.mask:
+                    raise ValueError("minvalue must be less than or equal to maxvalue")
+                else:
+                    # array is completely masked. doesn't matter what values are for plot
+                    return 0.*value
+            elif vmin==vmax:
+                return 0.*value
+            else:
+                # scale points not masked by ignore_mask or by original mask of val
+                scale = 1./(vmax-vmin)
+                result = (val-vmin)*scale
+                if clip:
+                    result = nx.clip(result,0.,1.)
+                # set result over sentinel points to sentinel values 
+                if self.ignore is not None:
+                    print("Now to ignore",self.ignore_mask.shape)
+                    print("result",result.shape)
+                    print("val.data",val.data.shape)
+                    result[self.ignore_mask]=val.data[self.ignore_mask]
+
+            if vtype == 'scalar':
+                result = result[0]
+            return result
+
+        def get_ignore_mask(self, A):
+            if ma.isMA(A):
+                A=A.data
+            if self.ignore is not None:
+                self.ignore_mask = False
+                for ignore in self.ignore:
+                    self.ignore_mask |= A==ignore
+
+
+        def autoscale(self, A):
+            # self.scaled is method in base class Normalize [colors.py], is True if self.vmin,vmax already defined
+            if not self.scaled():
+                if self.ignore is not None:
+                    if self.ignore_mask is None:
+                        self.get_ignore_mask(A)
+                    A = ma.masked_where(self.ignore_mask,A)
+
+                if self.vmin is None: self.vmin = A.min()
+                if self.vmax is None: self.vmax = A.max()
+
+        def inverse(self, value):
+            if not self.scaled():
+                raise ValueError("Not invertible until scaled")
+            vmin, vmax = self.vmin, self.vmax
+
+            if isinstance(value, (int, float)):
+                return vmin + value * (vmax - vmin)
+            else:
+                val = ma.asarray(value)
+                result = vmin + val * (vmax - vmin)
+                if self.ignore is not None:
+                    if self.ignore_mask is None:
+                        self.get_ignore_mask(value)
+                    print("Now to ignore",self.ignore_mask.shape)
+                    print("result",result.shape)
+                    print("val.data",val.data.shape)
+                    result[self.ignore_mask]=val.data[self.ignore_mask]
+                return result
+
+
+
 if __name__ == '__main__':
     # define the sentinels
     sentinel1 = 10
