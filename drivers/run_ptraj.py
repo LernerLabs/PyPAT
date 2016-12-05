@@ -8,13 +8,13 @@ if __name__ == '__main__':
     from optparse import OptionParser
 
     usage = tool_utils.usage + """
-Please also make sure that ptraj is installed and in your path.
+Please also make sure that cpptraj is installed and in your path.
 
 This mimics the following shell script:
 
-    export PTRAJ_INPUT_DIR=/users/mlerner/tmp/spronk/ptraj_files/
+    export CPPTRAJ_INPUT_DIR=/users/mlerner/tmp/spronk/ptraj_files/
     export PRMTOP=/users/spronk/temp/1sgz/1sgz.nowat.prmtop
-    for f in $PTRAJ_INPUT_DIR/*.ptraj; do ptraj $PRMTOP <$f > $f.out; done
+    for f in $CPPTRAJ_INPUT_DIR/*.ptraj; do cpptraj $PRMTOP <$f > $f.out; done
 """
     parser = OptionParser(usage=tool_utils.usage)
 
@@ -33,9 +33,9 @@ This mimics the following shell script:
     filenames += glob.glob(os.path.join(options.outputdir,'write_%s_ref_pdb.ptraj'%options.structurename))
     print("I found these ptraj files to run:",filenames)
     for f in filenames:
-        prog,args = 'ptraj',(os.path.join(options.inputdir,options.prmtop), f)
+        prog,args = 'cpptraj',(os.path.join(options.inputdir,options.prmtop), f)
         retcode,progout = tool_utils.run(prog,args)
-        outf = file(f+'.out','w')
+        outf = open(f+'.out','w')
         outf.write(progout)
         outf.close()
         print("Ran",prog,args,"with result",retcode)

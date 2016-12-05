@@ -254,7 +254,6 @@ def read_data(fname):
      - .dat
            A .dat file from ptraj.  This can be read in with scipy.io.read_array()
     """
-    from scipy.io import read_array
     import numpy as N
     data = None
     sys.stdout.write("reading "+fname+" ")
@@ -262,10 +261,10 @@ def read_data(fname):
     if os.path.isfile(fname+'.numpy'):
         sys.stdout.write("as numpy\n")
         sys.stdout.flush()
-        f = file(fname+'.numpy')
-        data = N.fromstring(f.read())
+        f = open(fname+'.numpy')
+        data = np.fromstring(f.read())
         f.close()
-        one_side = int(N.sqrt(len(data)))
+        one_side = int(np.sqrt(len(data)))
         if abs(len(data) - one_side*one_side) >= 0.1:
             message = "Only square matrices are supported. %s has len %s."%(fname,one_side)
             sys.stdout.write(message)
@@ -275,9 +274,9 @@ def read_data(fname):
         sys.stdout.write("as numpy.bz2\n")
         sys.stdout.flush()
         bf = bz2.BZ2File(fname+'.numpy.bz2')
-        data = N.fromstring(bf.read())
+        data = np.fromstring(bf.read())
         bf.close()
-        one_side = int(N.sqrt(len(data)))
+        one_side = int(np.sqrt(len(data)))
         if abs(len(data) - one_side*one_side) >= 0.1:
             message = "Only square matrices are supported. %s has len %s."%(fname,one_side)
             sys.stdout.write(message)
@@ -287,11 +286,11 @@ def read_data(fname):
     elif os.path.isfile(fname):
         sys.stdout.write("as dat\n")
         sys.stdout.flush()
-        data = read_array(file(fname))
+        data = np.loadtxt(open(fname))
     elif os.path.isfile(fname+'.bz2'):
         sys.stdout.write("as dat.bz2\n")
         sys.stdout.flush()
-        data = read_array(bz2.BZ2File(fname+'.bz2')) 
+        data = np.loadtxt(bz2.BZ2File(fname+'.bz2')) 
     else:
         sys.stdout.write("COULD NOT FIND (1)%s\n"%fname)
     return data
