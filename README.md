@@ -18,6 +18,6 @@ prompt$ make html
 (optionally)
 ```bash
 prompt$ make latex
-prompt$ cd .build/latex
+prompt$ cd ./build/latex
 prompt$ make all-pdf
 ```
