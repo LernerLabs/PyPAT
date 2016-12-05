@@ -74,14 +74,14 @@ go
          ptraj_output_dir,filename_prefix,name,start,stop,
          )
             
-        file(os.path.join(dir_containing_ptraj_files,fname),'w').write(txt)
+        open(os.path.join(dir_containing_ptraj_files,fname),'w').write(txt)
 
     if write_out_pdb_file:
         txt = pdb_ptraj_header + '''
 trajout %s pdb
 go
 '''%write_out_pdb_file
-        file(os.path.join(dir_containing_ptraj_files,'write_%s_ref_pdb.ptraj'%filename_prefix),'w').write(txt)
+        open(os.path.join(dir_containing_ptraj_files,'write_%s_ref_pdb.ptraj'%filename_prefix),'w').write(txt)
         
         
 
