@@ -97,7 +97,7 @@ Important notes:
                  '  use the -h option.\n')
     if not prmtop_file:
         prmtop_file = os.path.splitext(options.mdcrd_file)[0] + '.prmtop'
-        print 'Warning:  No prmtop file specified.  Will use ' + prmtop_file + '.' 
+        print('Warning:  No prmtop file specified.  Will use ' + prmtop_file + '.') 
     if mdcrd_prmtop_dir:
         mdcrd_file = os.path.join(mdcrd_prmtop_dir, mdcrd_file)
         prmtop_file = os.path.join(mdcrd_prmtop_dir, prmtop_file)
@@ -140,9 +140,9 @@ Important notes:
     for resi_type in is_present:
 	if resi_type not in resi_types:
 		if not (solvent and resi_type == 'WAT'):
-		    print 'Warning:  Unrecognized residue type ' + resi_type + ' is present in system.  Atoms in\n' + \
+		    print('Warning:  Unrecognized residue type ' + resi_type + ' is present in system.  Atoms in\n' + \
 			  '  this residue will not be explicitly included in H-bond analysis unless its\n' + \
-			  '  donors and acceptors are specified in the mask file.'
+			  '  donors and acceptors are specified in the mask file.')
 
     # Set non-None defaults for the options that need them
 
@@ -156,16 +156,16 @@ Important notes:
 	mask_f = file(mask_file)
     except IOError:
 	if mask_warning:
-	    print mask_warning
+	    print(mask_warning)
     else:
 	for line in mask_f:
 	    extra_masks += line
 
     if num_resi == None:
-	print 'Warning:  No num_resi option (-n, --num-resi) option specified.  Will use\n' + \
+	print('Warning:  No num_resi option (-n, --num-resi) option specified.  Will use\n' + \
 	      '  default value of 10000.  If your protein has fewer than 10000 residues\n' + \
               '  and there is solvent in the system, some of the solvent oxygen atoms\n' + \
-              '  will be treated explicitly as donors.'
+              '  will be treated explicitly as donors.')
 	num_resi = 10000
 
     # Create string of nonproline residues (- and , separated
@@ -245,8 +245,8 @@ Important notes:
     num_segments = (end_frame - begin_frame + 1) / segment_size
     remainder = (end_frame - begin_frame + 1) % segment_size
     if remainder:
-	print 'Warning:  The number of frames is not a multiple of the segment size.\n' + \
-              '  Ignoring final ' + str(remainder) + ' frames.'
+	print('Warning:  The number of frames is not a multiple of the segment size.\n' + \
+              '  Ignoring final ' + str(remainder) + ' frames.')
         end_frame -= remainder
 
     for segment_index in range(num_segments):
@@ -269,14 +269,14 @@ Important notes:
 
 	output += '\n# List of potential H-bond donors\n'
 	for resi_type in is_present:
-	    if donor_mask.has_key(resi_type):
+	    if resi_type in donor_mask:
 		output += donor_mask[resi_type] + '\n'
 
 	# List the acceptor atoms of sidechains
 
 	output += '\n# List of potential H-bond acceptors\n'
 	for resi_type in is_present:
-	    if acceptor_mask.has_key(resi_type):
+	    if resi_type in acceptor_mask:
 		output += acceptor_mask[resi_type] + '\n'
 
 	# List the backbone atoms
@@ -322,7 +322,7 @@ Important notes:
 	    output_file = os.path.join(hbond_data_dir, output_file)
             output_f = file(output_file, 'w')
         except IOError:
-            print 'ERROR:  Could not open ' + output_file + '.\n'
+            print('ERROR:  Could not open ' + output_file + '.\n')
             sys.exit('  Writing out ptraj input file to stdout:\n' + output)
         else:
             output_f.write(output + '\n')

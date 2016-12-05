@@ -31,12 +31,12 @@ This mimics the following shell script:
 
     filenames = glob.glob(os.path.join(options.outputdir,'calculate_%s*_correl_and_covar.ptraj'%options.structurename))
     filenames += glob.glob(os.path.join(options.outputdir,'write_%s_ref_pdb.ptraj'%options.structurename))
-    print "I found these ptraj files to run:",filenames
+    print("I found these ptraj files to run:",filenames)
     for f in filenames:
         prog,args = 'ptraj',(os.path.join(options.inputdir,options.prmtop), f)
         retcode,progout = tool_utils.run(prog,args)
         outf = file(f+'.out','w')
         outf.write(progout)
         outf.close()
-        print "Ran",prog,args,"with result",retcode
+        print("Ran",prog,args,"with result",retcode)
 

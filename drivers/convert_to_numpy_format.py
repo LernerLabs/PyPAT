@@ -37,7 +37,7 @@ if __name__ == '__main__':
     else:
         pattern = os.path.join(options.dir,options.structurename+'_NS*.dat'+options.compression)
     fnames = glob.glob(pattern)
-    print "I will convert these files",pattern,":",fnames
+    print("I will convert these files",pattern,":",fnames)
     for fname in fnames:
         if fname.endswith('bz2'):
             head = os.path.splitext(fname)[0]
@@ -46,15 +46,15 @@ if __name__ == '__main__':
         numpy_ver = head+'.numpy'
         numpybz_ver = head+'.numpy.bz2'
         if os.path.exists(numpy_ver) or os.path.exists(numpybz_ver):
-            print "Skipping",fname
+            print("Skipping",fname)
             continue
         if fname.endswith('bz2'):
-            print "Doing",fname,numpybz_ver
+            print("Doing",fname,numpybz_ver)
             data=scipy.io.read_array(bz2.BZ2File(fname))
             data.tofile(numpy_ver)
             os.system('bzip2 %s'%numpy_ver)
         else:
-            print "Doing",fname,numpy_ver
+            print("Doing",fname,numpy_ver)
             data=scipy.io.read_array(file(fname))
             data.tofile(numpy_ver)
         del data

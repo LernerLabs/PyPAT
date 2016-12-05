@@ -86,13 +86,13 @@ if __name__ == '__main__':
     #no_including_resis = None
     #including_resis = tunnel_including_resis + nap_including_resis
     #including_resis = no_including_resis
-    print a.get_trajectory_string(#minocc=0.05,
+    print(a.get_trajectory_string(#minocc=0.05,
                                   #minocc=0.60,
                                   minocc=options.minocc,
                                   numchunks=50,
                                   including_resis=options.resi_criteria,
                                   #sort_by='average_dwell_time',
                                   sort_by='occ',
-                                  )
+                                  ))
 
     

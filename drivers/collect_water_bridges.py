@@ -40,18 +40,18 @@ if __name__ == '__main__':
     argv = sys.argv
     if '--' in argv:
         argv = argv[argv.index('--')+1:]
-    print argv
+    print(argv)
     options,args = parser.parse_args(argv)
 
-    r = range(1,options.numsteps+1,options.chunksize)
+    r = list(range(1,options.numsteps+1,options.chunksize))
     if r[-1] != options.numsteps:
         r.append(options.numsteps)
-    starts_and_stops = zip(r[:-1],r[1:])
-    print starts_and_stops
+    starts_and_stops = list(zip(r[:-1],r[1:]))
+    print(starts_and_stops)
     for (start,stop) in starts_and_stops:
-        print
-        print 'DOING',start,stop
-        print
+        print()
+        print('DOING',start,stop)
+        print()
         pymol_hbond_analysis.find_bridging_waters_in_trajectory(name=options.name,
                                                                 start=start,
                                                                 stop=stop,

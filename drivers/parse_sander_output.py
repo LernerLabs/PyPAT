@@ -90,12 +90,12 @@ class StepInfo(dict):
             val = super(StepInfo,self).__getitem__(item)
         return val
     def keys(self):
-        return self.allKeys.keys()
+        return list(self.allKeys.keys())
     def iteritems(self):
         #
         # we need to make sure that this includes the fake keys in self.allKeys
         #
-        for k in self.keys():
+        for k in list(self.keys()):
             yield k,self[k]
         
 
@@ -106,7 +106,7 @@ def steps(fileobj):
     step = []
     for line in fileobj:
         if line.startswith('      R M S  F L U C T U A T I O N S'):
-            print "BREAKING"
+            print("BREAKING")
             break
         if line.startswith(' NSTEP'):
             if step:
@@ -179,21 +179,21 @@ if __name__ == '__main__':
         f = file(datafileName)
         f.close()
     except:
-        print "****************************************"
-        print
-        print "Could not read %s." % datafileName
-        print
-        print "****************************************"
-        print
+        print("****************************************")
+        print()
+        print("Could not read %s." % datafileName)
+        print()
+        print("****************************************")
+        print()
         sys.exit(usage)
     if os.path.exists(dir):
-        print "****************************************"
-        print
-        print "%s exists.  Please (re)move it or specify" % dir
-        print "a different destination directory."
-        print
-        print "****************************************"
-        print
+        print("****************************************")
+        print()
+        print("%s exists.  Please (re)move it or specify" % dir)
+        print("a different destination directory.")
+        print()
+        print("****************************************")
+        print()
         sys.exit(usage)
 
     os.system('mkdir %s' % dir)
@@ -219,7 +219,7 @@ if __name__ == '__main__':
         # We want TIME(PS) to be the first column
         #
         if nonTimeKeys is None:
-            nonTimeKeys = step.keys()
+            nonTimeKeys = list(step.keys())
             try:
                 nonTimeKeys.remove('TIME(PS)')
             except:
@@ -237,7 +237,7 @@ if __name__ == '__main__':
             # Write the headers
             #
             allout.write('# TIME(PS)\t' + '\t'.join(nonTimeKeys) + '\n')
-            for key in fileMap.keys():
+            for key in list(fileMap.keys()):
                 fileMap[key]['file'].write('# TIME(PS)\t' + key + '\n')
             
         #
@@ -255,7 +255,7 @@ if __name__ == '__main__':
     # Close all of the files
     #
     allout.close()
-    for k in fileMap.keys():
+    for k in list(fileMap.keys()):
         fileMap[k]['file'].close()
 
     #
@@ -264,7 +264,7 @@ if __name__ == '__main__':
     imgDir = os.path.join(dir,'images')
     os.system('mkdir -p ' + imgDir)
     gpltCmd = 'set terminal postscript\n'
-    for k in fileMap.keys():
+    for k in list(fileMap.keys()):
         imgName = getFilename(k,'.ps',imgDir)
         gpltCmd += "set output '%s'\n" % imgName
         gpltCmd += "plot '%s'\n" % os.path.join(dir,fileMap[k]['filename'])
@@ -278,7 +278,7 @@ if __name__ == '__main__':
     # them into gifs.
     #
     thumbPart = '-size 200x200 -geometry 200x200'
-    for k in fileMap.keys():
+    for k in list(fileMap.keys()):
         ps = getFilename(k,'.ps',imgDir)
         gif = getFilename(k,'.gif',imgDir)
         thumb = getFilename(k,'_thumb.gif',imgDir)
@@ -295,7 +295,7 @@ if __name__ == '__main__':
     htmlFile.write("<html><head></head><body>")
     htmlFile.write('<table><tr><td colspan="%s">These are the thumbnails .. click on them for the big picture(s)</td>' % numCols)
     count = 0
-    for k in fileMap.keys():
+    for k in list(fileMap.keys()):
         if count % numCols == 0:
             htmlFile.write('</tr><tr>')
         count += 1
@@ -305,7 +305,7 @@ if __name__ == '__main__':
         htmlFile.write('<a href="#%s"><img src="%s"></a>'%(k,thumbName))
         htmlFile.write('</td>\n')
     htmlFile.write('</tr></table>\n')
-    for k in fileMap.keys():
+    for k in list(fileMap.keys()):
         bigName = getFilename(k,'.gif','images')
         htmlFile.write('<br>')
         htmlFile.write('<a name="%s"><a href="%s"><img src="%s"></a></a>\n' % (k,getFilename(k,'.txt'), bigName))

@@ -84,8 +84,8 @@ Important notes:
     # Process options
 
     if options.aa_code != 1 and options.aa_code != 3:
-	print 'Warning:  Illegal amino acid code.  Must be 1 or 3.\n' + \
-	      '  Will use the default of 3.'
+	print('Warning:  Illegal amino acid code.  Must be 1 or 3.\n' + \
+	      '  Will use the default of 3.')
 	options.aa_code = 3
 
     if options.prmtop_dir != None:

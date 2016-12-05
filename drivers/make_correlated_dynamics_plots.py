@@ -23,7 +23,7 @@ output-dir/images together and move that to the other machine.
     tool_utils.add_window_options(parser)
 
     parser.add_option("--cmap",dest="cmap",default="Normal",
-                      help="Color map to use when making the plots. Our custom cmaps are Normal and Scaled.  Standard matplotlib cmaps %s are also supported."%[m for m in pylab.cm.datad.keys() if not m.endswith("_r")] + "[default: %default]",
+                      help="Color map to use when making the plots. Our custom cmaps are Normal and Scaled.  Standard matplotlib cmaps %s are also supported."%[m for m in list(pylab.cm.datad.keys()) if not m.endswith("_r")] + "[default: %default]",
                       )
                       
     parser.add_option('--plot-types',dest="plottypes",

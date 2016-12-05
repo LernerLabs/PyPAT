@@ -90,13 +90,13 @@ The html file will be called <struct>BigAnimatedMovies.html.
         if not filenames:
             filenames =  glob.glob(os.path.join(options.outputdir,'images',options.structurename+"* ns*"+plot_type+" correl*",))
         if not filenames:
-            print "COULD NOT FIND files for",pattern
+            print("COULD NOT FIND files for",pattern)
             continue
         filenames.sort()
         prog = 'convert'
-        print filenames
+        print(filenames)
         #sys.exit()
-        print [os.path.join(options.outputdir,'images',"animated_"+options.structurename+"_resi_"+plot_type+"_correl.gif",),]
+        print([os.path.join(options.outputdir,'images',"animated_"+options.structurename+"_resi_"+plot_type+"_correl.gif",),])
         args = ['-loop','0',] + filenames + [os.path.join(options.outputdir,'images',"animated_"+options.structurename+"_resi_"+plot_type+"_correl.gif",),]
         tool_utils.run(prog,args,verbose=True)
 
@@ -140,7 +140,7 @@ The html file will be called <struct>BigAnimatedMovies.html.
 '''
     fname =os.path.join(options.outputdir,options.structurename+'BigAnimatedMovies.html')
     f = file(fname,'w')
-    print "WRITING",fname
+    print("WRITING",fname)
     f.write(html_txt)
     f.close()
 
