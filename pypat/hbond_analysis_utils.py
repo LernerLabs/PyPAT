@@ -9,7 +9,7 @@ Right now, just handles pasting together ptraj output.
 import copy,pprint,os,sys
 from scipy import sqrt
 from string import ascii_letters
-from hbond_tool_utils import *
+from .hbond_tool_utils import *
 
 class Atom:
     def __init__(self, atom_name = None, resi_name = None, resi_num = None):
@@ -91,7 +91,7 @@ class HBond:
         try:
             leading_junk, donor, acceptor, stats, graph, trailing_junk = line.split('|')
         except ValueError:
-            print "Could not hbond", line
+            print("Could not hbond", line)
             raise
 
 	# Parse line:
@@ -107,7 +107,7 @@ class HBond:
 
 	# Make necessary type adjustments and calculations
 
-        self.occ_pct,self.dist,self.dist_stdev,self.angle,self.angle_stdev = [float(i) for i in occ_pct,dist,dist_stdev,angle,angle_stdev]
+        self.occ_pct,self.dist,self.dist_stdev,self.angle,self.angle_stdev = [float(i) for i in (occ_pct,dist,dist_stdev,angle,angle_stdev)]
         self.graph = graph
 	self.occ_num = int(round(self.occ_pct / 100.0 * self.num_frames))
 	if self.occ_num < 2:
@@ -210,7 +210,7 @@ class HBond:
                 self.angle = float(attr_list[1].split('(')[0])
                 self.angle_stdev = float(attr_list[1].split('(')[1])
         except:
-            print "String could not be converted to hbond:", s
+            print("String could not be converted to hbond:", s)
             raise
 	
 	self.occ_num = int(round(self.occ_pct / 100.0 * self.num_frames))
@@ -274,7 +274,7 @@ class HBond:
 	it we should use the estimated population standard deviation (S) of the
 	statistics, which has N-1 in the denominator of the calculation.  
         """
-        if type(self) != type(other):
+        if not isinstance(self, type(other)):
             raise Exception('Cannot add hbond to non-hbond %s object: %s'%(type(other),other))
 
 	if self._atom_str() != other._atom_str():
@@ -498,8 +498,8 @@ def combine_hbonds(hbond_files, segment_size = 1000,
         else:
             full_file = each_file
         if not os.path.exists(full_file):
-            print 'Warning:  File ' + full_file + ' does not exist.\n' + \
-                  '  Will be ignored.'
+            print('Warning:  File ' + full_file + ' does not exist.\n' + \
+                  '  Will be ignored.')
             files_to_remove.append(each_file)
     for each_file in files_to_remove:
         hbond_files.remove(each_file)
@@ -551,7 +551,7 @@ def combine_hbonds(hbond_files, segment_size = 1000,
     # Write output to file or stdout
 
     output = []
-    for hbond in combined_hbonds.values():
+    for hbond in list(combined_hbonds.values()):
         if is_resinum_of_interest(hbond, resi_criteria) and \
 	   is_atom_of_interest(hbond, atom_criteria) and \
 	   hbond.occ_pct > occ_thresh:
@@ -570,14 +570,14 @@ def combine_hbonds(hbond_files, segment_size = 1000,
 	output_dir = hbond_data_dir
 
     if output_file == None:
-	print output_str
+	print(output_str)
     else:
 	try:
 	    output_file = os.path.join(output_dir, output_file)
 	    output_f = file(output_file, 'w')
 	except IOError:
-	    print 'Warning:  Could not open ' + output_file + '.\n'
-	    print output_str
+	    print('Warning:  Could not open ' + output_file + '.\n')
+	    print(output_str)
 	else:
 	    output_f.write(output_str + '\n')
 	    output_f.close()
@@ -614,10 +614,10 @@ def subset_hbonds(hbond_file, output_file = None,
 
     if not hbond_file:
 	sys.exit('ERROR:  No input file provided.\n')
-    if type(hbond_file) is type([]):
+    if isinstance(hbond_file, type([])):
 	if len(hbond_file) > 1:
-	    print 'Warning:  More than 1 input file provided.\n' + \
-		  '  Will only use first one: ' + hbond_file[0] 
+	    print('Warning:  More than 1 input file provided.\n' + \
+		  '  Will only use first one: ' + hbond_file[0]) 
 	hbond_file = hbond_file[0]
     if hbond_data_dir != None:
         full_file = os.path.join(hbond_data_dir, hbond_file)
@@ -651,8 +651,8 @@ def subset_hbonds(hbond_file, output_file = None,
                 hbond_str = hbond._atom_str() + ' ' + hbond._attr_str()
 
 	    if sort not in 'occ_pct acceptor donor dist angle'.split():
-                print 'Warning:  Unknown sorting method: ' + sort + '.\n'  + \
-                      '  Will sort by occupancy percentage.'
+                print('Warning:  Unknown sorting method: ' + sort + '.\n'  + \
+                      '  Will sort by occupancy percentage.')
                 sort = 'occ_pct'
 
             if sort == 'occ_pct':
@@ -690,14 +690,14 @@ def subset_hbonds(hbond_file, output_file = None,
         output_dir = hbond_data_dir
 
     if output_file == None:
-        print output_str
+        print(output_str)
     else:
         try:
             output_file = os.path.join(output_dir, output_file)
             output_f = file(output_file, 'w')
         except IOError:
-            print 'Warning:  Could not open ' + output_file + '.\n'
-            print output_str
+            print('Warning:  Could not open ' + output_file + '.\n')
+            print(output_str)
         else:
             output_f.write(output_str + '\n')
             output_f.close()
@@ -753,8 +753,8 @@ def compare_hbonds(hbond_files, identifiers = [], output_file = None,
 	else:
 	    full_file = each_file
 	if not os.path.exists(full_file):
-	    print 'Warning:  File ' + full_file + ' does not exist.\n' + \
-		  '  Will be ignored.'
+	    print('Warning:  File ' + full_file + ' does not exist.\n' + \
+		  '  Will be ignored.')
 	    files_to_remove.append(each_file)
     for each_file in files_to_remove:
 	i = hbond_files.index(each_file)
@@ -803,8 +803,8 @@ def compare_hbonds(hbond_files, identifiers = [], output_file = None,
     # Compile and sort relevant data
 
     if sort not in 'occ_diff occ_pct donor acceptor'.split():
-	print 'Warning:  Unknown sorting method: ' + sort + '.\n' + \
-	      '  Will use occ_diff to sort.'
+	print('Warning:  Unknown sorting method: ' + sort + '.\n' + \
+	      '  Will use occ_diff to sort.')
 	sort = 'occ_diff'
 
     output = []
@@ -860,14 +860,14 @@ def compare_hbonds(hbond_files, identifiers = [], output_file = None,
 	output_dir = hbond_data_dir
 
     if output_file == None:
-        print output_str[:-2]  # Removes the last 2 newlines
+        print(output_str[:-2])  # Removes the last 2 newlines
     else:
         try:
             output_file = os.path.join(output_dir, output_file)
             output_f = file(output_file, 'w')
         except IOError:
-            print 'Warning:  Could not open ' + output_file + '.\n'
-            print output_str
+            print('Warning:  Could not open ' + output_file + '.\n')
+            print(output_str)
         else:
             output_f.write(output_str[:-1])
             output_f.close()

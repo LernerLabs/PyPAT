@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division
+
 import pylab
 from matplotlib.colors import Colormap, LinearSegmentedColormap, normalize, Normalize
 from matplotlib import numerix as nx
@@ -28,7 +28,7 @@ class SentinelMap(Colormap):
         self._i_bad = cmap.N+2
         self._isinit = False
 
-        for rgb in sentinels.values():
+        for rgb in list(sentinels.values()):
             if len(rgb)!=3:
                 raise ValueError('sentinel color must be RGB')
 
@@ -45,7 +45,7 @@ class SentinelMap(Colormap):
         if bytes == True:
             raise ValueError("Don't handle bytes")
         rgbaValues = self.cmap(nx.clip(scaledImageData, 0.,1.))
-        for sentinel,rgb in self.sentinels.items():
+        for sentinel,rgb in list(self.sentinels.items()):
             r,g,b = rgb
             if (scaledImageData==sentinel).max():
                 rgbaValues[...,0] =  nx.where(scaledImageData==sentinel, r, rgbaValues[...,0])
@@ -208,9 +208,9 @@ class SentinelNormGobble(normalize):
                 result = nx.clip(result,0.,1.)
             # set result over sentinel points to sentinel values 
             if self.ignore is not None:
-                print "Now to ignore",self.ignore_mask.shape
-                print "result",result.shape
-                print "val.data",val.data.shape
+                print("Now to ignore",self.ignore_mask.shape)
+                print("result",result.shape)
+                print("val.data",val.data.shape)
                 result[self.ignore_mask]=val.data[self.ignore_mask]
                 
         if vtype == 'scalar':
@@ -250,9 +250,9 @@ class SentinelNormGobble(normalize):
             if self.ignore is not None:
                 if self.ignore_mask is None:
                     self.get_ignore_mask(value)
-                print "Now to ignore",self.ignore_mask.shape
-                print "result",result.shape
-                print "val.data",val.data.shape
+                print("Now to ignore",self.ignore_mask.shape)
+                print("result",result.shape)
+                print("val.data",val.data.shape)
                 result[self.ignore_mask]=val.data[self.ignore_mask]
             return result
 
@@ -354,9 +354,9 @@ if __name__ == '__main__':
 
     # make mask
     mask = nx.mlab.rand(n*2,n) >0.5
-    print 'mask\n ',mask
-    print mask.shape
-    print X.shape
+    print('mask\n ',mask)
+    print(mask.shape)
+    print(X.shape)
 
 
     # now mask X

@@ -6,7 +6,7 @@ Tools for analyzing MD trajectories
 from scipy import *
 
 import sys,glob,os,bz2
-from tool_utils import read_data
+from .tool_utils import read_data
 
 def setup_ca(reference_fname,indexing=1,skip_resis=[]):
     """
@@ -68,11 +68,11 @@ def setup_ca(reference_fname,indexing=1,skip_resis=[]):
         except ValueError:
             pass
         
-        x,y,z = map(float,(x,y,z))
+        x,y,z = list(map(float,(x,y,z)))
         try:
-            resi,atom_id = map(int,(resi,atom_id))
+            resi,atom_id = list(map(int,(resi,atom_id)))
         except ValueError:
-            print "Trouble getting resi,atom_id from",resi,atom_id,line.strip()
+            print("Trouble getting resi,atom_id from",resi,atom_id,line.strip())
             raise
         if resi in skip_resis:
             skip_atom_id_list.append(atom_id)
@@ -104,7 +104,7 @@ def setup_ca(reference_fname,indexing=1,skip_resis=[]):
         # in the PDB file, and it's conformation A.
         #
         if resn == 'AASP' and resi == 116 and '1RX2' in reference_fname: resn = 'ASP'
-        elif resn == 'AASP': print "Unrecognized residue: AASP"
+        elif resn == 'AASP': print("Unrecognized residue: AASP")
         master_residue_list.append((resi,resn))
         reference_coords.append((x,y,z))
         ca_atom_id_list.append(atom_id)
@@ -120,13 +120,13 @@ def setup_ca(reference_fname,indexing=1,skip_resis=[]):
             # empty lists
             _results.append(thing)
             continue
-        if type(thing[0]) == type(()):
+        if isinstance(thing[0], type(())):
             # master_residue_list has (1,'MET'), etc.
             thing = [i for i in thing if i[0] not in skip_atom_id_list]
-        elif type(thing[0]) == type(1):
+        elif isinstance(thing[0], type(1)):
             thing = [i for i in thing if i not in skip_atom_id_list]
         else:
-            print "wha?",thing
+            print("wha?",thing)
             a = 1/0
         _results.append(thing)
     results = _results
@@ -136,16 +136,16 @@ def setup_ca(reference_fname,indexing=1,skip_resis=[]):
     # And now take care of the indexing (0 or 1) problem
     #
     if indexing == 0:
-        print "Fixing indexing"
+        print("Fixing indexing")
         for thing in results:
             for i in range(len(thing)):
-                if type(thing[0]) == type(()):
+                if isinstance(thing[0], type(())):
                     # master_residue_list has (1,'MET'), etc.
                     thing[i] = (thing[i][0] - 1,thing[i][1])
-                elif type(thing[0]) == type(1):
+                elif isinstance(thing[0], type(1)):
                     thing[i] = thing[i] - 1
                 else:
-                    print "wha?",thing
+                    print("wha?",thing)
                     a = 1/0
     return results
 
@@ -166,8 +166,8 @@ def parse_ca(fname,master_residue_list):
         atom,atom_id,atom_name,resn,chain,resi,x,y,z,occupancy,b = parts
         if atom_name != 'CA':
             continue
-        x,y,z = map(float,(x,y,z))
-        resi,atom_id = map(int,(resi,atom_id))
+        x,y,z = list(map(float,(x,y,z)))
+        resi,atom_id = list(map(int,(resi,atom_id)))
         #
         # In order to compare different structures, we cheat a little bit.
         # Here, we say that all Histidine residues will be called HIS
@@ -179,7 +179,7 @@ def parse_ca(fname,master_residue_list):
     if residue_list != master_residue_list:
         #print master_residue_list
         #print residue_list
-        print "broken",[(i,residue_list[i],master_residue_list[i]) for i in range(len(residue_list)) if residue_list[i] != master_residue_list[i]]
+        print("broken",[(i,residue_list[i],master_residue_list[i]) for i in range(len(residue_list)) if residue_list[i] != master_residue_list[i]])
         sys.exit()
     return coords
 
@@ -197,8 +197,8 @@ def parse_all(fname,master_residue_list):
         if parts[0] not in ['ATOM','HETATM']:
             continue
         atom,atom_id,atom_name,resn,chain,resi,x,y,z,occupancy,b = parts
-        x,y,z = map(float,(x,y,z))
-        resi,atom_id = map(int,(resi,atom_id))
+        x,y,z = list(map(float,(x,y,z)))
+        resi,atom_id = list(map(int,(resi,atom_id)))
         #
         # In order to compare different structures, we cheat a little bit.
         # Here, we say that all Histidine residues will be called HIS
@@ -211,7 +211,7 @@ def parse_all(fname,master_residue_list):
     if residue_list != master_residue_list:
         #print master_residue_list
         #print residue_list
-        print "broken",[(i,residue_list[i],master_residue_list[i]) for i in range(len(residue_list)) if residue_list[i] != master_residue_list[i]]
+        print("broken",[(i,residue_list[i],master_residue_list[i]) for i in range(len(residue_list)) if residue_list[i] != master_residue_list[i]])
         sys.exit()
     return coords
 
@@ -339,7 +339,7 @@ def simple_rmsd(s1,s2):
     rmsd = sqrt((1/N)*sum((x_n - y_n)^2))
     """
     N = len(s1)
-    _range = range(N)
+    _range = list(range(N))
     deviations = [(s1[i][0] - s2[i][0])**2 +
                   (s1[i][1] - s2[i][1])**2 +
                   (s1[i][2] - s2[i][2])**2 for i in _range]
@@ -365,7 +365,7 @@ def write_rmsds_and_ile50leu28ca_dists(ref_fname,
     '''
     structure_fnames = glob.glob(target_pattern)
     if not structure_fnames:
-        print "I found zero files matching this pattern:",target_pattern
+        print("I found zero files matching this pattern:",target_pattern)
     master_residue_list,reference_coords,ca_atom_id_list,hydro_atom_id_list,nonhydro_atom_id_list,nosp_atom_id_list,nonnosp_atom_id_list,mainchain_atom_id_list,sidechain_atom_id_list,mainchain_nonhydro_atom_id_list,sidechain_hydro_atom_id_list,sidechain_nonhydro_atom_id_list,skip_atom_id_list = setup_ca(ref_fname)
     every_atom_coords = [parse_all(fname,master_residue_list) for fname in structure_fnames]
     all_coords = [parse_ca(fname,master_residue_list) for fname in structure_fnames]
@@ -436,7 +436,7 @@ def write_rmsds_and_ile50leu28ca_dists(ref_fname,
         #for structure_parts in correlated_parts + anti_correlated_parts + standard_parts + residue_chunks:
         for structure_parts in 'substrate_binding2'.split():
             this_fname = os.path.join(out_dir,os.path.splitext(rmsd_out_fname)[0] + '_' + structure_parts + os.path.splitext(rmsd_out_fname)[1])
-            print "Doing",this_fname
+            print("Doing",this_fname)
             structure_parts_map = {# standard parts
                                    'all':(0,162),
                                    'm20':(8,24),
@@ -476,9 +476,9 @@ def write_rmsds_and_ile50leu28ca_dists(ref_fname,
                                    '42-51':(41,51),
                                    }
             if structure_parts == 'noloops':
-                bad_idxs = range(*structure_parts_map['m20']) + range(*structure_parts_map['FG']) + range(*structure_parts_map['CD']) + range(*structure_parts_map['GH'])
+                bad_idxs = list(range(*structure_parts_map['m20'])) + list(range(*structure_parts_map['FG'])) + list(range(*structure_parts_map['CD'])) + list(range(*structure_parts_map['GH']))
                 good_idxs = [i for i in range(*structure_parts_map['all']) if i not in bad_idxs]
-                print "structure_parts",structure_parts,"residues",good_idxs
+                print("structure_parts",structure_parts,"residues",good_idxs)
                 rmsds = [simple_rmsd([reference_coords[i] for i in good_idxs if i < len(reference_coords)],[coords[i] for i in good_idxs if i < len(coords)]) for coords in all_coords]
             elif structure_parts == 'subdomain1':
                 #Subdomain 1  1-37, 107-159 (Sawaya/Kraut, Fig 9B)
@@ -492,7 +492,7 @@ def write_rmsds_and_ile50leu28ca_dists(ref_fname,
                 good_idxs = [i - 1 for i in (5,6,26,27,28,29,36,37,50,51,52,54,57,96)]
                 rmsds = [simple_rmsd([reference_coords[i] for i in good_idxs],[coords[i] for i in good_idxs]) for coords in all_coords]
             else:
-                print "structure_parts",structure_parts,"residues",structure_parts_map[structure_parts]
+                print("structure_parts",structure_parts,"residues",structure_parts_map[structure_parts])
                 start,stop = structure_parts_map[structure_parts]
                 rmsds = [simple_rmsd(reference_coords[start:stop],coords[start:stop]) for coords in all_coords]
             f = file(this_fname,'w')
@@ -526,15 +526,15 @@ def get_resi_to_atom_id_map(pdb_fname,indexing=1):
         except ValueError:
             pass
         try:
-            resi,atom_id = map(int,(resi,atom_id))
+            resi,atom_id = list(map(int,(resi,atom_id)))
         except ValueError:
-            print "trouble with resi",resi,"atom_id",atom_id,line.strip()
+            print("trouble with resi",resi,"atom_id",atom_id,line.strip())
             raise
         atom_id_map.setdefault(resi,[]).append(atom_id)
     f.close()
     if indexing == 0:
         aim = {}
-        for k,v in atom_id_map.iteritems():
+        for k,v in atom_id_map.items():
             aim[k-1] = [i - 1 for i in v]
         atom_id_map = aim
     return atom_id_map
@@ -563,12 +563,12 @@ def get_max_min_ca_resi_data(all_atom_data,atom_id_map,ca_atom_id_list,non_ca_re
             try:
                 all_vals = [all_atom_data[i1-1][i2-1] for i1 in atom_ids1 for i2 in atom_ids2]
             except IndexError:
-                print "i1",i1,"i2",i2
-                print "all_atom_data.keys",all_atom_data.shape
-                print "all_atom_data[i1-1].keys",all_atom_data[i1-1].shape
-                print "r1,r2",r1,r2
-                print "atom_ids1",atom_ids1
-                print "atom_ids2",atom_ids2
+                print("i1",i1,"i2",i2)
+                print("all_atom_data.keys",all_atom_data.shape)
+                print("all_atom_data[i1-1].keys",all_atom_data[i1-1].shape)
+                print("r1,r2",r1,r2)
+                print("atom_ids1",atom_ids1)
+                print("atom_ids2",atom_ids2)
                 raise
 
             if (r1 in non_ca_resis) or (r2 in non_ca_resis):
@@ -609,12 +609,12 @@ def write_max_min_ca_resi_versions(fname,ref_pdb_fname,non_ca_resis=[160,],overw
               'ca' :'_resi_ca'.join( os.path.splitext(fname))+'.bz2',
               }
     pre_existing_files = False
-    for fn in fnames.values():
+    for fn in list(fnames.values()):
         if os.path.isfile(fn):
             if overwrite:
-                print fn,"already exists, will overwrite"
+                print(fn,"already exists, will overwrite")
             else:
-                print fn,"already exists, will not overwrite"
+                print(fn,"already exists, will not overwrite")
                 pre_existing_files = True
     if pre_existing_files and not overwrite:
         return
@@ -633,7 +633,7 @@ def write_max_min_ca_resi_versions(fname,ref_pdb_fname,non_ca_resis=[160,],overw
         else:
             f = file(fnames[d],'w')
             
-        print "writing",fnames[d]
+        print("writing",fnames[d])
         io.write_array(f,data[d])
         f.close()
     
@@ -696,7 +696,7 @@ def ThrLett_to_OneLett(resi, suppress_alert = True):
         return 'V'
     else:
         if not suppress_alert:
-            print resi, "not recognized as residue.  Returning", resi
+            print(resi, "not recognized as residue.  Returning", resi)
         return resi 
 
 
@@ -757,13 +757,13 @@ def OneLett_to_ThrLett(resi, cap = 'standard', suppress_alert = True):
         res3 = 'Tyr'
     else:
         if not suppress_alert:
-            print resi, "not recognized as residue.  Returning", resi
+            print(resi, "not recognized as residue.  Returning", resi)
         res3 = resi
 
     if cap == 'all':
         res3 = upper(res3)
     elif cap != 'standard':
-        print 'Ignoring invalid option for cap:', cap
+        print('Ignoring invalid option for cap:', cap)
 
     return res3
 
@@ -795,8 +795,8 @@ def get_resinum_to_resi_map(resiname_file, offset = 0, indexing = 1, aa_code = 3
     resi_map = {}
 
     if resiname_file == None:
-	print 'Warning:  No prmtop or PDB file given.\n' + \
-	      '  No residue number information will be presented.'
+	print('Warning:  No prmtop or PDB file given.\n' + \
+	      '  No residue number information will be presented.')
 	for i in range(10000):
 	    resi_map[i] = str(i)
 	return resi_map
@@ -804,8 +804,8 @@ def get_resinum_to_resi_map(resiname_file, offset = 0, indexing = 1, aa_code = 3
     try:
 	f = file(resiname_file)
     except IOError:
-	print 'Warning:  Could not open ' + resiname_file + '.\n' + \
-	      '  No residue number information will be presented.'
+	print('Warning:  Could not open ' + resiname_file + '.\n' + \
+	      '  No residue number information will be presented.')
 	for i in range(10000):
 	    resi_map[i] = str(i)
 	return resi_map
@@ -847,8 +847,8 @@ def get_resinum_to_resi_map(resiname_file, offset = 0, indexing = 1, aa_code = 3
     f.close()
 
     if not resi_map:
-        print "Warning: Could not extract residue information from prmtop or PDB file.\n"
-        print "  No residue number information will be presented."
+        print("Warning: Could not extract residue information from prmtop or PDB file.\n")
+        print("  No residue number information will be presented.")
 	for i in range(10000):
 	    resi_map[i] = str(i)
 	return resi_map

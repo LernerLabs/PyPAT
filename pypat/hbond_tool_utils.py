@@ -37,7 +37,7 @@ def parse_residue_list_file(filename = None):
     try:
 	f = file(filename)
     except:
-	print warning_str
+	print(warning_str)
 	return {}
 
     standard_residue_lists = {}
@@ -50,16 +50,16 @@ def parse_residue_list_file(filename = None):
 	    key, string_to_parse = line.split(':')
 	    key = key.strip()
 	    for piece in string_to_parse.strip().split(','):
-		if standard_residue_lists.has_key(piece):
+		if piece in standard_residue_lists:
 		    resi_list.extend(standard_residue_lists[piece])
 		elif '-' in piece:
 		    first, last = piece.split('-')
-		    resi_list.extend(range(int(first), int(last) + 1))
+		    resi_list.extend(list(range(int(first), int(last) + 1)))
 		else:
 		    resi_list.append(int(piece))
 	except:
-	    print 'Warning:  Ignoring line in file ' + filename + '\n' + \
-		  '  because of improper syntax:\n' + line
+	    print('Warning:  Ignoring line in file ' + filename + '\n' + \
+		  '  because of improper syntax:\n' + line)
 	resi_list = sorted(list(set(resi_list)))
 	standard_residue_lists[key] = resi_list
 
@@ -89,17 +89,17 @@ def parse_residue_string(string_to_parse, offset = 0, filename = None):
     try:
         resi_list = []
         for piece in piece_list:
-            if standard_residue_lists.has_key(piece):
+            if piece in standard_residue_lists:
                 for resi in standard_residue_lists[piece]:
 		    resi_list.append(resi - offset)
             elif '-' in piece:
                 first, last = piece.split('-')
-                resi_list.extend(range(int(first) - offset, int(last) + 1 - offset))
+                resi_list.extend(list(range(int(first) - offset, int(last) + 1 - offset)))
             else:
                 resi_list.append(int(piece) - offset)
     except:
-	print 'Warning:  Residue list string ' + string_to_parse + \
-	      ' has improper syntax.'
+	print('Warning:  Residue list string ' + string_to_parse + \
+	      ' has improper syntax.')
 	return []
 
     resi_list = sorted(list(set(resi_list)))
@@ -109,7 +109,7 @@ def parse_residue_string(string_to_parse, offset = 0, filename = None):
     for resi in resi_list:
 	output_str += str(resi) + ','
     output_str = output_str[:-1] + '\n'
-    print output_str
+    print(output_str)
 
     return resi_list
 
@@ -130,8 +130,8 @@ def parse_residue_list(string_to_parse, offset = 0, filename = None):
 	return parse_residue_string(string_pieces[0], offset, filename), \
 	       parse_residue_string(string_pieces[1], offset, filename)
     else:
-	print 'Warning:  Residue list string ' + string_to_parse + \
-	      ' has improper syntax.'
+	print('Warning:  Residue list string ' + string_to_parse + \
+	      ' has improper syntax.')
 	return []
 
 

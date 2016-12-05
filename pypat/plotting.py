@@ -7,11 +7,11 @@ TODO:
 2) Possibly move the cmap lookup to tool_utils.
 
 """
-from __future__ import division
-from sentinel_map import SentinelMap,SentinelNorm
+
+from .sentinel_map import SentinelMap,SentinelNorm
 import glob
 import matplotlib.numerix.ma as ma
-import md_analysis_utils
+from . import md_analysis_utils
 import sys
 import pylab,matplotlib,os
 from matplotlib import mlab
@@ -20,7 +20,7 @@ import scipy.io
 import pprint
 import bz2
 import copy
-from tool_utils import read_data
+from .tool_utils import read_data
 cdict = {'red':  (((-1.0+1)/2,32/255, 32/255),
                   ((-0.6+1)/2,32/255, 32/255),
                   ((-0.3+1)/2,32/255, 32/255),
@@ -103,7 +103,7 @@ sentinel_maps_and_norms = {'Normal':(SentinelMap(my_cmap,sentinels={sentinel1:rg
 ##                                     SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
 ##                                     ),
 ##                           }
-for map in [m for m in pylab.cm.datad.keys() if not m.endswith("_r")]:
+for map in [m for m in list(pylab.cm.datad.keys()) if not m.endswith("_r")]:
     sentinel_maps_and_norms[map] = (SentinelMap(pylab.cm.get_cmap(map),sentinels={sentinel1:rgb1,sentinel2:rgb2}),
                                      SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
                                     )
@@ -135,7 +135,7 @@ def make_several_correl_plots(struct,
         if data is None:
             continue
         title = titleprefix +plot_type + ' correlation'
-        print title,'S'
+        print(title,'S')
         _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig,dat_dir,out_dir,overwrite,ref_pdb_fname,mark_resis,highlight,highlight_mode,skip_resis,ticks,dpi,title)
         del data
 
@@ -148,7 +148,7 @@ def make_several_correl_plots(struct,
         for plot_type in longer_plot_types:
             _data = copy.copy(data)
             title = titleprefix +plot_type + ' correlation'
-            print title,'L'
+            print(title,'L')
             _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig,dat_dir,out_dir,overwrite,ref_pdb_fname,mark_resis,highlight,highlight_mode,skip_resis,ticks,dpi,title)
             del _data
         del data
@@ -156,7 +156,7 @@ def make_several_correl_plots(struct,
 
 def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig,dat_dir,out_dir,overwrite,ref_pdb_fname,mark_resis,highlight,highlight_mode,skip_resis,ticks,dpi,title):
 
-    print "Title is",title
+    print("Title is",title)
     figname = os.path.join(out_dir,title+'.png')
     if os.path.exists(figname) and not overwrite:
         sys.stdout.write("Skipping "+figname+'\n')
@@ -199,8 +199,7 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
             data = scipy.take(data, mainchain_nonhydro_atom_id_list, axis = 1)
             bottom_bar = scipy.take(bottom_bar,mainchain_nonhydro_atom_id_list, axis = 1)
         elif plot_type == 'allheavy':
-                totake = mainchain_nonhydro_atom_id_list+sidechain_nonhydro_atom_id_list
-                totake.sort()
+                totake = sorted(mainchain_nonhydro_atom_id_list+sidechain_nonhydro_atom_id_list)
                 data = scipy.take(data, totake, axis = 0)
                 left_bar = scipy.take(left_bar, totake, axis = 0)
                 data = scipy.take(data, totake, axis = 1)
@@ -213,7 +212,7 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
             data = scipy.take(data,[i for i in nosp_atom_id_list if i not in mainchain_nonhydro_atom_id_list], axis = 1)
             bottom_bar = scipy.take(bottom_bar,[i for i in nosp_atom_id_list if i not in mainchain_nonhydro_atom_id_list], axis = 1)
             if 0 in data.shape:
-                print "COULD NOT CALCULATE sidechainhbond"
+                print("COULD NOT CALCULATE sidechainhbond")
                 return
             #data = scipy.take(data,nosp_atom_id_list,    axis = 1)
         elif plot_type == 'hbond':
@@ -225,7 +224,7 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
             data       = scipy.take(data,       nosp_atom_id_list , axis = 1)
             bottom_bar = scipy.take(bottom_bar, nosp_atom_id_list , axis = 1)
             if 0 in data.shape:
-                print "COULD NOT CALCULATE hbond"
+                print("COULD NOT CALCULATE hbond")
                 return
     else:
         #
@@ -263,7 +262,7 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
     _cmap,_norm = sentinel_maps_and_norms[cmap]
     #plotter = pylab.pcolormesh
     plotter = pylab.imshow
-    print "I will plot now!"
+    print("I will plot now!")
     plotterargs = {pylab.imshow:{'interpolation':'nearest','origin':'lower'},
                    pylab.pcolormesh:{'shading':'flat'}}
     
@@ -358,7 +357,7 @@ def _make_one_correl_plot(data,struct,times,cmap,detail_level,plot_type,save_fig
         pylab.clf()
     else:
         pylab.show()
-        print "now showing!"
+        print("now showing!")
         if 1: pylab.savefig('./x',dpi=dpi)
     del data
 
@@ -423,7 +422,7 @@ def make_correl_plots_for_movie(structures,
                         _times = '%05.2f ns - %05.2f ns'%(_times - window_size_ns/2., _times + window_size_ns/2.)
                         titleprefix = _struct + ', ' + _times + ', ' 
                         title = titleprefix + plot_type + ' correlation'
-                        print title
+                        print(title)
                         image_name = os.path.join(image_dir,title+'.png')
                         if not made_plots_already:
                             make_several_correl_plots(struct,times,cmap,detail_level,save_fig=True,out_dir=image_dir,overwrite=overwrite,

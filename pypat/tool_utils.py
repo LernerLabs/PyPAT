@@ -11,7 +11,7 @@ Recent changes
 
 """
 
-from __future__ import division
+
 import os,sys,bz2
 from copy import copy
 from optparse import Option, OptionValueError
@@ -46,12 +46,12 @@ def check_zerobasedintlist(option,opt,value):
     #       
     standard_residue_lists = {
         # Loops
-        'dhfr_fg':range(115,132),
-        'dhfr_cd':range(63,71),
-        'dhfr_m20':range(8,24),
-        'dhfr_gh':range(141,150),
-        'dhfr_subdomain1':range(37) + range(106,159),
-        'dhfr_subdomain2':range(38,106),
+        'dhfr_fg':list(range(115,132)),
+        'dhfr_cd':list(range(63,71)),
+        'dhfr_m20':list(range(8,24)),
+        'dhfr_gh':list(range(141,150)),
+        'dhfr_subdomain1':list(range(37)) + list(range(106,159)),
+        'dhfr_subdomain2':list(range(38,106)),
         # Beta strands
         'dhfr_BA':[i-1 for i in range(  2,  5+1)],
         'dhfr_BB':[i-1 for i in range( 39, 43+1)], #
@@ -105,11 +105,11 @@ def check_zerobasedintlist(option,opt,value):
             else:
                 if '-' in k:
                     start,stop = k.split('-')
-                    result.extend(range(int(start)-1,int(stop)))
+                    result.extend(list(range(int(start)-1,int(stop))))
                 else:
                     result.append(int(k)-1)
         result = sorted(list(set(result)))
-        print "Caring about",len(result),"residues",[i+1 for i in result]
+        print("Caring about",len(result),"residues",[i+1 for i in result])
         return result
     try:
         if ':' in value:
@@ -175,8 +175,8 @@ def add_standard_options(parser):
 #######################################
 
 def get_desired(options):
-    starts = range(options.start,options.stop-options.windowsize+1,options.windowspacing)
-    stops = range(options.start+options.windowsize,options.stop+1,options.windowspacing)
+    starts = list(range(options.start,options.stop-options.windowsize+1,options.windowspacing))
+    stops = list(range(options.start+options.windowsize,options.stop+1,options.windowspacing))
     names = [(starts[i] + options.windowsize/2.0)/1000.0 for i in range(len(starts))]
     # names is the centers of the windows.  start + windowsize/2 converted to NS.
 
@@ -205,7 +205,7 @@ def run(prog,args,verbose=True):
     try:
         import subprocess,tempfile
 
-        if type(args) == type(''):
+        if isinstance(args, type('')):
             args = tuple(args.split())
         elif type(args) in (type([]),type(())):
             args = tuple(args)
@@ -216,31 +216,31 @@ def run(prog,args,verbose=True):
         args = (prog,) + args
         output_file = tempfile.TemporaryFile(mode="w+")
         if verbose:
-            print "Running",args
+            print("Running",args)
         retcode = subprocess.call(args,stdout=output_file.fileno(),stderr=subprocess.STDOUT)
         output_file.seek(0)
         prog_out = output_file.read()
         output_file.close() #windows doesn't do this automatically
         if verbose:
-            print "Results were:"
-            print "Return value:",retcode
-            print "Output:"
-            print prog_out
+            print("Results were:")
+            print("Return value:",retcode)
+            print("Output:")
+            print(prog_out)
         return (retcode,prog_out)
     except ImportError:
         # probably python <= 2.4
-        if type(args) != type(''):
+        if not isinstance(args, type('')):
             args = ' '.join(args)
         cmd = prog + ' ' + args
         if verbose:
-            print "Running",cmd
+            print("Running",cmd)
         retcode = os.system(cmd)
         # cannot return prog_out via os.system
         if verbose:
-            print "Results were:"
-            print "Return value:",retcode
-            print "Output:"
-            print "\tcould not find subprocess module, so no output reported"
+            print("Results were:")
+            print("Return value:",retcode)
+            print("Output:")
+            print("\tcould not find subprocess module, so no output reported")
         return (retcode,'')
 
 def read_data(fname):
