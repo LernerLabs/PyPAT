@@ -38,14 +38,6 @@ There are two main parts to this.
 
        #!/usr/bin/env python
        import sys
-       if sys.platform == 'darwin':
-           print 'darwin'
-           PYPAT_CODE_DIR = '/Users/mglerner/work/Dynamics-DHFR/'
-       elif sys.platform == 'linux2':
-           print 'linux2'
-           PYPAT_CODE_DIR = '/users/mlerner/work/src/Dynamics-DHFR/'
-
-       sys.path.append(PYPAT_CODE_DIR)
        from pypat.hbond import pymol_hbond_analysis
        r = range(2501,3001,500)
        starts_and_stops = zip(r[:-1],r[1:])

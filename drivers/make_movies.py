@@ -2,17 +2,6 @@
 
 import sys,os,glob
 
-if sys.platform == 'darwin':
-    PYPAT_CODE_DIR = '/Users/mglerner/work/PyPAT/code/'
-elif sys.platform == 'linux2':
-    PYPAT_CODE_DIR = '/users/mlerner/work/src/PyPAT/code/'
-    PYPAT_CODE_DIR = '/v/bigbox2/home/mglerner/work/PyPAT/code/'
-    
-sys.path.append(PYPAT_CODE_DIR)
-
-
-
-
 if __name__ == '__main__':
     from pypat import tool_utils
     import glob

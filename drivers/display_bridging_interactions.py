@@ -2,13 +2,6 @@
 
 import sys,os
 
-if sys.platform == 'darwin':
-    PYPAT_CODE_DIR = '/Users/mglerner/work/PyPAT/code/'
-elif sys.platform == 'linux2':
-    PYPAT_CODE_DIR = '/users/mlerner/work/src/PyPAT/code/'
-    
-sys.path.append(PYPAT_CODE_DIR)
-
 if __name__ == '__main__':
     from pypat.hbond import pymol_hbond_analysis
     from pypat import tool_utils

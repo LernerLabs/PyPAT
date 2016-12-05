@@ -2,14 +2,6 @@
 
 import sys,os
 
-if sys.platform == 'darwin':
-    PYPAT_CODE_DIR = '/Users/mglerner/work/Dynamics-DHFR/'
-elif sys.platform == 'linux2':
-    PYPAT_CODE_DIR = '/users/mlerner/work/src/Dynamics-DHFR/'
-    
-sys.path.append(PYPAT_CODE_DIR)
-
-
 if __name__ == '__main__':
     from pypat.md_analysis_utils import write_max_min_ca_resi_versions
     from pypat import tool_utils

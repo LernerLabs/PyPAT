@@ -6,14 +6,6 @@ make all of our correl and covar plots with scipy.
 
 import sys,os
 
-if sys.platform == 'darwin':
-    PYPAT_CODE_DIR = '/Users/mglerner/nethome/work/PyPAT/code'
-elif sys.platform == 'linux2':
-    #PYPAT_CODE_DIR = '/users/mlerner/work/src/PyPAT/code'
-    PYPAT_CODE_DIR = '/v/bigbox2/home/mglerner/work/PyPAT/code'
-    
-sys.path.append(PYPAT_CODE_DIR)
-
 if __name__ == '__main__':
     from pypat.plotting import make_correl_plots_for_movie, make_one_correl_plot
     from pypat import tool_utils
