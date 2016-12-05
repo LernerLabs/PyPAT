@@ -71,7 +71,7 @@ There are two main parts to this.
    
 
 """
-from __future__ import division
+
 
 try:
     enumerate
@@ -130,7 +130,7 @@ class TrajectoryFormatter:
         return [i for i in _L if i]
 
     def format(self,mintime,maxtime,timestep,numchunks,trajectory):
-        time_chunks = self.equal_split(range(mintime,maxtime+timestep,timestep),numchunks)
+        time_chunks = self.equal_split(list(range(mintime,maxtime+timestep,timestep)),numchunks)
         result = ''
         for r in time_chunks:
             occ = 0.
@@ -239,12 +239,12 @@ class BridgingWaterTrajectoryAnalyzer:
         """
         global default_trajectory_formatter
         bwts = [(getattr(bwt,sort_by),bwt) for bwt in self.trajectories]
-        print "BWTA getting %s trajectory strings with minocc %s, numchunks %s, including_resis %s"%(len(bwts),
+        print("BWTA getting %s trajectory strings with minocc %s, numchunks %s, including_resis %s"%(len(bwts),
                                                                                                      minocc,
                                                                                                      numchunks,
                                                                                                      including_resis,
-                                                                                                     )
-        print default_trajectory_formatter.get_description_string()
+                                                                                                     ))
+        print(default_trajectory_formatter.get_description_string())
         bwts.sort()
         bwts.reverse()
         bwts = [thing[1] for thing in bwts]
@@ -311,7 +311,7 @@ class BridgingWaterTrajectoryAnalyzer:
                 # Reject bridges between two hydros that are part of the same residue
                 #
                 if atom1[0] == atom2[0]: # same residue
-                    if 0: print "same residue hydros",atom1,atom2
+                    if 0: print("same residue hydros",atom1,atom2)
                     if atom1[2].startswith('H') and atom2[2].startswith('H'):
                         #print "rejecting",atom1,atom2
                         return False
@@ -319,7 +319,7 @@ class BridgingWaterTrajectoryAnalyzer:
                 # Bridges must be between two different residues
                 #
                 if atom1[0] == atom2[0]:
-                    if 0: print "same residue",atom1,atom2
+                    if 0: print("same residue",atom1,atom2)
                     return False
                 
                 #
@@ -327,14 +327,14 @@ class BridgingWaterTrajectoryAnalyzer:
                 #
                 if (atom1[4] > dist_cutoff) or (atom2[4] > dist_cutoff):
                     if 0:
-                        print "bad dist",atom1,atom2
+                        print("bad dist",atom1,atom2)
                     return False
                 #
                 # All angles must be >= the angle cutoff
                 #
                 if (atom1[6] < angle_cutoff) or (atom2[6] < angle_cutoff):
                     if 0:
-                        print "bad angle",atom1,atom2
+                        print("bad angle",atom1,atom2)
                     return False
                 return True
         wat_resi,atoms = bridging_water_info[0],bridging_water_info[1:]
@@ -409,7 +409,7 @@ class BridgingWaterTrajectoryAnalyzer:
         try:
             x = eval(f.read())
         except SyntaxError:
-            print "Could not read file %s .. possibly still being written to?"%fname
+            print("Could not read file %s .. possibly still being written to?"%fname)
             return
         f.close()
         if times is None:
@@ -419,11 +419,11 @@ class BridgingWaterTrajectoryAnalyzer:
             if start == 0:
                 start = 1
             times = {}
-            for (o,t) in zip(sorted(x.keys()),range(start,stop)):
+            for (o,t) in zip(sorted(x.keys()),list(range(start,stop))):
                 times[o] = t*self.timestep
             if 0:
-                print "Time mapping",times
-        for obj_name,bridging_water_infos in x.iteritems():
+                print("Time mapping",times)
+        for obj_name,bridging_water_infos in x.items():
             t = times[obj_name]
             if t < self.mintime:
                 self.mintime = t
@@ -437,11 +437,11 @@ class BridgingWaterTrajectoryAnalyzer:
         if bw not in self.trajectories:
             il = bw.get_nonempty_interaction_list(include_distances=True)
             if 0:
-                print il
+                print(il)
             if len(il) != 2:
                 raise NotImplementedError('We only support bridges with two edges at this time %s'%il)
             if 0:
-                print il[0]
+                print(il[0])
             resi1,resn1,atomname1,interaction1,dist1 = il[0]
             resi2,resn2,atomname2,interaction2,dist2 = il[1]
             #
@@ -449,22 +449,22 @@ class BridgingWaterTrajectoryAnalyzer:
             # We should store it with the time in self.trajectories.
             #
             if 0:
-                print "interaction1",interaction1
-                print "interaction2",interaction2
+                print("interaction1",interaction1)
+                print("interaction2",interaction2)
             bwt = BridgingWaterTrajectory((resi1,resn1,atomname1,interaction1,dist1,),
                                           (resi2,resn2,atomname2,interaction2,dist2,),
                                           )
 
             self.trajectories[bwt] = bwt
             if 0:
-                print "added",(resi1,resn1,atomname1,interaction1,dist1,),(resi2,resn2,atomname2,interaction2,dist2,)
+                print("added",(resi1,resn1,atomname1,interaction1,dist1,),(resi2,resn2,atomname2,interaction2,dist2,))
             
         # It's worth knowing that I've overloaded __setitem__ so that it will
         # actually just append wat_resi to the list of times.x
         try:
             self.trajectories[bw][t] = wat_resi
         except KeyError:
-            print "trouble adding",bw
+            print("trouble adding",bw)
             raise
 
         
@@ -478,14 +478,14 @@ class BridgingWaterTrajectory:
 
     """
 
-    def __init__(self,
-                 (resi1,resn1,atomname1,interaction1,dist1),
-                 (resi2,resn2,atomname2,interaction2,dist2),
+    def __init__(self, xxx_todo_changeme, xxx_todo_changeme1,
                  ):
         #
         # If we every use more trajectory formatters,
         # we'll make it an argument to __init__.
         #
+        (resi1,resn1,atomname1,interaction1,dist1) = xxx_todo_changeme
+        (resi2,resn2,atomname2,interaction2,dist2) = xxx_todo_changeme1
         global default_trajectory_formatter
         from collections import defaultdict
 
@@ -531,7 +531,7 @@ class BridgingWaterTrajectory:
         return self._times[time]
     def __setitem__(self,time,wat_resi):
         if 0:
-            print "setting",time,wat_resi
+            print("setting",time,wat_resi)
         self._times[time].append(wat_resi)
         return self._times[time]
     def __hash__(self):
@@ -544,12 +544,11 @@ class BridgingWaterTrajectory:
         We don't include distance for the same reason that we don't include
         wat_resi.
         """
-        inter = [(self.resi1,self.resn1,self.atomname1,self.interaction1,),
+        inter = sorted([(self.resi1,self.resn1,self.atomname1,self.interaction1,),
                  (self.resi2,self.resn2,self.atomname2,self.interaction2,),
-                 ]
-        inter.sort()
+                 ])
         if 0:
-            print "Will hash..",tuple(inter),"to",hash(tuple(inter)),"in bwt"
+            print("Will hash..",tuple(inter),"to",hash(tuple(inter)),"in bwt")
         return hash(tuple(inter))
     def __repr__(self):
         try:
@@ -578,15 +577,15 @@ class BridgingWaterTrajectory:
                                                                                                                 )
                 
         except TypeError:
-            print "Args"
-            print (self.maxtime, self.mintime, self.timestep,
+            print("Args")
+            print((self.maxtime, self.mintime, self.timestep,
                    self.occ,100,
                    self.average_dwell_time,
                    self.num_waters_seen,
                    self.resn1,self.resi1,self.atomname1,
                    self.interaction1,
                    self.resn2,self.resi2,self.atomname2,
-                   self.interaction2,)
+                   self.interaction2,))
             raise
         return result
     def contains_resi(self,resis):
@@ -601,9 +600,9 @@ class BridgingWaterTrajectory:
         """
         if resis is None:
             return True
-        if type(resis) == type(''):
+        if isinstance(resis, type('')):
             resis = [int(i) for i in resis.split()]
-        elif type(resis) == type(1):
+        elif isinstance(resis, type(1)):
             resis = [resis,]
         if len(self.get_nonempty_interaction_list()) != 2:
             raise NotImplementedError("Only bwts of length two are supported")
@@ -678,7 +677,7 @@ class BridgingWaterTrajectory:
         # Occupancy
         #
         occ = 0.
-        r = range(self.mintime,self.maxtime+self.timestep,self.timestep)
+        r = list(range(self.mintime,self.maxtime+self.timestep,self.timestep))
         for t in r:
             if self._times[t]:
                 occ += 1
@@ -711,7 +710,7 @@ class BridgingWaterTrajectory:
                 wat_resi = self._times[t]
                 if wat_resi not in (False,None,[]):
                     counts[wat_resi] += 1
-            self.dwell_times = [i * self.timestep for i in counts.values()]
+            self.dwell_times = [i * self.timestep for i in list(counts.values())]
         elif combination_method == 'loose':
             """
             Writing this algorithm myself is actually a little tricky.  Instead,
@@ -728,7 +727,7 @@ class BridgingWaterTrajectory:
             # particular bridge at a given time.
             #
             wat_resis = set()
-            for i in self._times.values():
+            for i in list(self._times.values()):
                 for j in i:
                     wat_resis.add(j)
             for wat_resi in wat_resis:
@@ -792,15 +791,7 @@ class BridgingWaterTrajectory:
 class SingleSnapshotBridgingWater:
 
     def __init__(self,
-                 wat_resi,
-                 (resi1,resn1,atomname1,interaction1,dist1,_angle1,angle1),
-                 (resi2,resn2,atomname2,interaction2,dist2,_angle2,angle2),
-                 (resi3,resn3,atomname3,interaction3,dist3,_angle3,angle3)=(None,None,None,None,None,None,None,),
-                 (resi4,resn4,atomname4,interaction4,dist4,_angle4,angle4)=(None,None,None,None,None,None,None,),
-                 (resi5,resn5,atomname5,interaction5,dist5,_angle5,angle5)=(None,None,None,None,None,None,None,),
-                 (resi6,resn6,atomname6,interaction6,dist6,_angle6,angle6)=(None,None,None,None,None,None,None,),
-                 (resi7,resn7,atomname7,interaction7,dist7,_angle7,angle7)=(None,None,None,None,None,None,None,),
-                 (resi8,resn8,atomname8,interaction8,dist8,_angle8,angle8)=(None,None,None,None,None,None,None,),
+                 wat_resi, xxx_todo_changeme2, xxx_todo_changeme3, xxx_todo_changeme4=(None,None,None,None,None,None,None,), xxx_todo_changeme5=(None,None,None,None,None,None,None,), xxx_todo_changeme6=(None,None,None,None,None,None,None,), xxx_todo_changeme7=(None,None,None,None,None,None,None,), xxx_todo_changeme8=(None,None,None,None,None,None,None,), xxx_todo_changeme9=(None,None,None,None,None,None,None,),
                  ):
         """
 
@@ -814,6 +805,14 @@ class SingleSnapshotBridgingWater:
         At the moment, there's no reason to record the angles, so we won't.
         
         """
+        (resi1,resn1,atomname1,interaction1,dist1,_angle1,angle1) = xxx_todo_changeme2
+        (resi2,resn2,atomname2,interaction2,dist2,_angle2,angle2) = xxx_todo_changeme3
+        (resi3,resn3,atomname3,interaction3,dist3,_angle3,angle3) = xxx_todo_changeme4
+        (resi4,resn4,atomname4,interaction4,dist4,_angle4,angle4) = xxx_todo_changeme5
+        (resi5,resn5,atomname5,interaction5,dist5,_angle5,angle5) = xxx_todo_changeme6
+        (resi6,resn6,atomname6,interaction6,dist6,_angle6,angle6) = xxx_todo_changeme7
+        (resi7,resn7,atomname7,interaction7,dist7,_angle7,angle7) = xxx_todo_changeme8
+        (resi8,resn8,atomname8,interaction8,dist8,_angle8,angle8) = xxx_todo_changeme9
         self.wat_resi = wat_resi
         if resi1 is not None: resi1 = int(resi1)
         if resi2 is not None: resi2 = int(resi2)
@@ -844,7 +843,7 @@ class SingleSnapshotBridgingWater:
         # distances.
         #
         result = []
-        for k,v in self.interactions.iteritems():
+        for k,v in self.interactions.items():
             if None in k:
                 continue
             if v is None:
@@ -863,7 +862,7 @@ class SingleSnapshotBridgingWater:
         """
         #result = '(%s,{'%self.wat_resi
         result = '<SSBW %s '%self.wat_resi
-        for k,v in self.interactions.iteritems():
+        for k,v in self.interactions.items():
             if None in k:
                 continue
             if v is None:
@@ -880,17 +879,16 @@ class SingleSnapshotBridgingWater:
         # if we get rid of self.wat_resi, we may not be able to
         # correctly keep track of dwell times for particular waters.
         #
-        inter = self.get_nonempty_interaction_list()
-        inter.sort()
+        inter = sorted(self.get_nonempty_interaction_list())
         #return hash((self.wat_resi,tuple(inter)
         #             ))
         if 0:
-            print "Will hash",inter
+            print("Will hash",inter)
         return hash(tuple(inter))
 
     def __eq__(self,other):
         if 0:
-            print "Comparing",self,other,sorted(self.get_nonempty_interaction_list()) == sorted(other.get_nonempty_interaction_list())
+            print("Comparing",self,other,sorted(self.get_nonempty_interaction_list()) == sorted(other.get_nonempty_interaction_list()))
         return sorted(self.get_nonempty_interaction_list()) == sorted(other.get_nonempty_interaction_list())
         #return self.interactions == other.interactions
     def __ne__(self,other):
@@ -931,7 +929,7 @@ class SingleSnapshotHbondEmitter:
     def create_selections(self):
 
         from pymol import cmd,stored
-        import hbond_definitions
+        from . import hbond_definitions
         hbond_definitions.do_standard_selections()
 
         if 0:
@@ -1091,7 +1089,7 @@ class SingleSnapshotHbondEmitter:
                         bridges[state][w_resi].append((resi,resn,name,'acceptingfrom',hdist,'angle',hangle))
         real_bridges = {}
         for state in bridges:
-            for wat_resi,bridge in bridges[state].iteritems():
+            for wat_resi,bridge in bridges[state].items():
                 if len(bridge) >= 2:
                     if state not in real_bridges: real_bridges[state] = []
                     real_bridges[state].append([wat_resi,] + bridge)
@@ -1129,16 +1127,16 @@ def find_bridging_waters_in_trajectory(name,start,stop,hbond_dist_cutoff,hbond_a
     """
     fname = '%s_hbond_%s_%s.txt'%(name,start,stop)
     if os.path.exists(fname) and not overwrite:
-        print fname,"already exists.  Skipping."
+        print(fname,"already exists.  Skipping.")
         return
-    print "Opening",fname,"for writing"
+    print("Opening",fname,"for writing")
     f = file(fname,'w')
 
     from pymol import cmd,stored
     cmd.delete('all')
-    print "ready to load top"
+    print("ready to load top")
     cmd.load(name+'.top')
-    print "ready to load trj"
+    print("ready to load trj")
     cmd.load_traj(name+'.trj',start=start,stop=stop)
     #
     # Yeah, tell me about it. But, PyMOL will often load up water molecules from
@@ -1148,7 +1146,7 @@ def find_bridging_waters_in_trajectory(name,start,stop,hbond_dist_cutoff,hbond_a
     states = cmd.count_states(name)
     e = SingleSnapshotHbondEmitter(states=states,hbond_dist_cutoff=hbond_dist_cutoff,hbond_angle_cutoff=hbond_angle_cutoff)
     e.analyze_and_emit(f)
-    print "Closing",fname
+    print("Closing",fname)
     f.close()
 
 if __name__ == '__pymol__':
@@ -1161,12 +1159,12 @@ def get_hbond_trajectories(structure,timestep,fnames,combination_method,min_requ
     This assumes that times can be automatically determined from
     filenames.
     """
-    print "Bridging Water Trajectory calculated with combination_method %s, looseness %s, min_required_dwell_time %s, dist_cutoff %s, angle_cutoff %s"%(combination_method,
+    print("Bridging Water Trajectory calculated with combination_method %s, looseness %s, min_required_dwell_time %s, dist_cutoff %s, angle_cutoff %s"%(combination_method,
                                                                                                                                                         looseness,
                                                                                                                                                         min_required_dwell_time,
                                                                                                                                                         dist_cutoff,
                                                                                                                                                         angle_cutoff,
-                                                                                                                                                        )
+                                                                                                                                                        ))
     a = BridgingWaterTrajectoryAnalyzer(structure,timestep)
     #
     # There are two places where we filter things out.

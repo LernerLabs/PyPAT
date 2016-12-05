@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division
+
 import os
 
 def write_ptraj_input_files(dir_containing_ptraj_files,
