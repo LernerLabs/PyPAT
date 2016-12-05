@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PyPAT &mdash; PyPAT v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:   '',
+          VERSION:    '1.0',
+          COLLAPSE_MODINDEX: false,
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html" />
+    <link rel="index" title="Global index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="PyPAT v1.0 documentation" href="index.html" />
+    <link rel="next" title="Graphical display of MD properties over time" href="MDProperties.html" />
+    <link rel="prev" title="Welcome to PyPAT&#8217;s documentation!" href="index.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="MDProperties.html" title="Graphical display of MD properties over time"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to PyPAT&#8217;s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyPAT v1.0 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section">
+<h1 id="pypat">PyPAT<a class="headerlink" href="#pypat" title="Permalink to this headline">¶</a></h1>
+<p>PyPAT (Python-based Protein Analysis Tools) is a collection of tools
+that build upon the ptraj module of AMBER and the PyMOL visualization
+package to aid in the analysis of protein structures and molecular
+dynamics trajectories. They allow for the evaluation of the
+convergence of trajectories, as well as the examination of correlated
+dynamics, hydrogen bonds, and bridging-water molecules throughout a
+trajectory. Our tools are written in Python and released under an
+open-source license.</p>
+<p>This document is intended to explain the usage of the PyPAT tools. For
+an understanding of the theory behind, and implementation of, these
+tools, users are refered to the paper:</p>
+<p>Lerner, M.G., Spronk, S.A., and Carlson, H.A. (2008) PyPAT: a
+Python-based toolset to aid in the analysis of protein structures and
+trajectories. <em>submitted to Bioinformatics</em>.</p>
+</div>
+<div class="section">
+<h1 id="system-requirements">System Requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h1>
+<p>Our tools are primarily meant for use with the AMBER suite of
+programs, and they have been extensively tested on both OS X and
+Linux. Many may be installed on Windows systems, but this is generally
+unsupported.</p>
+<p>Required software includes</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference" href="http://www.gnuplot.info">gnuplot</a> 4.2 (www.gnuplot.info)</li>
+<li><a class="reference" href="http://www.imagemagick.org">ImageMagick</a> 6.4.3 (www.imagemagick.org),</li>
+<li><a class="reference" href="http://matplot-lib.sourceforge.net">matplotlib</a> 0.98.3 (matplot-lib.sourceforge.net)</li>
+<li><a class="reference" href="http://numpy.scipy.org">numpy</a> 1.1.1 (numpy.scipy.org)</li>
+<li><a class="reference" href="http://www.pymol.org">PyMOL</a> 1.1 (www.pymol.org)</li>
+<li><a class="reference" href="http://www.python.org">Python</a> 2.6 (www.python.org)</li>
+</ul>
+</blockquote>
+<p>all of which are freely available and open-source.</p>
+</div>
+<div class="section">
+<h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Installation on Linux and OS X follows standard Python proctocols:</p>
+<pre>prompt$ python setup.py build
+prompt$ python setup.py install</pre>
+<p>Users may easily install into a local directory with the <tt class="docutils literal"><span class="pre">--prefix</span></tt> option:</p>
+<pre>prompt$ python setup.py install --prefix=/my/home/dir/software</pre>
+</div>
+<div class="section">
+<h1 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<p>Documentation is provided in <a class="reference" href="http://docutils.sourceforge.net/docs/user/rst/quickref.html">ReStructured Text</a> formatted text files
+in the top-level directory. <a class="reference" href="http://sphinx.pocoo.org/">Sphinx</a> has been used to generate html and
+pdf documentation from these text files. The html and pdf files live
+in the <tt class="docutils literal"><span class="pre">Doc</span></tt> subdirectory. If the need arises, documentation may be
+rebuilt:</p>
+<pre>prompt$ make clean
+prompt$ make html
+prompt$ make latex
+prompt$ cd .build/latex
+prompt$ make all-pdf
+prompt$ cd ../..
+prompt$ rm -rf Doc/html
+prompt$ mv .build/html Doc
+prompt$ mv .build/latex/PyPAT.pdf Doc</pre>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3>Table Of Contents</h3>
+            <ul>
+<li><a class="reference" href="">PyPAT</a></li>
+<li><a class="reference" href="#system-requirements">System Requirements</a></li>
+<li><a class="reference" href="#installation">Installation</a></li>
+<li><a class="reference" href="#documentation">Documentation</a></li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html" title="previous chapter">Welcome to PyPAT&#8217;s documentation!</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="MDProperties.html" title="next chapter">Graphical display of MD properties over time</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/PyPAT.txt">Show Source</a></li>
+            </ul>
+            <h3>Quick search</h3>
+            <form class="search" action="search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="MDProperties.html" title="Graphical display of MD properties over time"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to PyPAT&#8217;s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyPAT v1.0 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2008, Michael G. Lerner, Steven A. Spronk, Heather A. Carlson.
+      Last updated on Oct 14, 2008.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Bridging-water analysis &mdash; PyPAT v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:   '',
+          VERSION:    '1.0',
+          COLLAPSE_MODINDEX: false,
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html" />
+    <link rel="index" title="Global index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="PyPAT v1.0 documentation" href="index.html" />
+    <link rel="next" title="Hydrogen Bonding" href="HydrogenBonding.html" />
+    <link rel="prev" title="Graphical display of MD properties over time" href="MDProperties.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="HydrogenBonding.html" title="Hydrogen Bonding"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="MDProperties.html" title="Graphical display of MD properties over time"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyPAT v1.0 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section">
+<h1 id="bridging-water-analysis">Bridging-water analysis<a class="headerlink" href="#bridging-water-analysis" title="Permalink to this headline">¶</a></h1>
+<div class="section">
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permalink to this headline">¶</a></h2>
+<p>An understanding of bridging-water molecules is critical in the study
+of structure, dynamics, and function of proteins and nucleic
+acids. While several programs (such as ptraj) allow for ane analysis
+of hydrogen bonds, the analysis of bridging waters is significantly
+more tedius. Typically, users must extract this information either
+through detailed examination of hydrogen bonds between pairs of
+protein atoms and water atoms, or through visual examination of MD
+trajectories.</p>
+<p>PyPAT greatly simplifies this process, providing two scripts
+(<tt class="docutils literal"><span class="pre">collect_water_bridges.py</span></tt> and
+<tt class="docutils literal"><span class="pre">display_bridging_interactions.py</span></tt>) that extract and analyze
+bridging interactions throughout an MD trajectory.</p>
+<p>A typical invocation for a trajectory and topology named <tt class="docutils literal"><span class="pre">mysim.trj</span></tt>
+and <tt class="docutils literal"><span class="pre">mysim.top</span></tt> might look like:</p>
+<pre>prompt$ pymol -qcr collect_water_bridges.py -- --name=mysim
+prompt$ display_bridging_interactions.py --name=mysim --resi-criteria 5,6,10-24</pre>
+<p>These scripts are able to analyze proteins, nucleic acids, and
+custom-defined ligands. In order to simplify the wording below, all of
+these will be referred to as &#8220;protein&#8221;.</p>
+</div>
+<div class="section">
+<h2 id="phase-1-collect-water-bridges-py">Phase 1 (collect_water_bridges.py)<a class="headerlink" href="#phase-1-collect-water-bridges-py" title="Permalink to this headline">¶</a></h2>
+<div class="section">
+<h3 id="description">Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
+<p>The first step is the most time consuming: extracting the bridging
+information from the MD simulation. Using PyMOL as a backend, all
+water molecules for which the Oxygen is within 4.0 Angstroms of the
+protein are examined. Information about the distance and angle of each
+interaction between these molecules and the protein is recorded. This
+information can be further refined in the next step, so we recommend
+using loose constraints; this helps avoid the need to rerun
+<tt class="docutils literal"><span class="pre">collect_water_bridges.py</span></tt>.</p>
+<p>We note again that this script must be run through PyMOL:</p>
+<pre>pymol -qcr path/to/collect_water_bridges.py -- --name=mysimulation</pre>
+<p>etc. The <tt class="docutils literal"><span class="pre">--</span></tt> after the script name is required.</p>
+<p>The default options for distance and angle cutoffs are usually
+correct. Users must explicitly specifiy the number of steps in the MD
+trajectory (<tt class="docutils literal"><span class="pre">--num-steps</span></tt>), as well as the name of the trajectory
+(<tt class="docutils literal"><span class="pre">--name</span></tt>). The trajectory and topology file must be named
+<tt class="docutils literal"><span class="pre">&lt;name&gt;.top</span></tt> and <tt class="docutils literal"><span class="pre">&lt;name&gt;.trj</span></tt> respectively.</p>
+<p>PyMOL slows down if it processes too many frames at once. Therefore,
+the trajectory is analyzed in chunks of 500 frames at a time. We find
+this to be a generally useful chunk-size, but users can change it via
+the <tt class="docutils literal"><span class="pre">chunk-size</span></tt> command-line option.</p>
+</div>
+<div class="section">
+<h3 id="defining-new-ligands">Defining new ligands<a class="headerlink" href="#defining-new-ligands" title="Permalink to this headline">¶</a></h3>
+<p>The script comes with definitions for standard protein and nucleic
+acid hydrogen-bonding interactions. Users may wish to change these, or
+to add definitions for new ligands. This is easily accomplished by
+editing the file <tt class="docutils literal"><span class="pre">hbond_definitions.py</span></tt> (installed under
+<tt class="docutils literal"><span class="pre">pypat/hbond/</span></tt> when the scripts are installed). As an example, here
+is the function that defines donors and acceptors for NADPH:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">select_nap_donors_and_acceptors</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ligand specific selections for NADPH (NAP)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#-- NADPH</span>
+    <span class="c">#acceptor mask :NAP@N6A  :NAP@H61</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_donors&quot;</span><span class="p">,</span><span class="s">&quot;prot_donors or (resn NAP and name H61)&quot;</span><span class="p">)</span>
+    <span class="c">#acceptor mask :NAP@N6A  :NAP@H62</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_donors&quot;</span><span class="p">,</span><span class="s">&quot;prot_donors or (resn NAP and name H62)&quot;</span><span class="p">)</span>
+    <span class="c">#acceptor mask :NAP@O&#39;A3 :NAP@HOA3</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_donors&quot;</span><span class="p">,</span><span class="s">&quot;prot_donors or (resn NAP and name HOA3)&quot;</span><span class="p">)</span>
+    <span class="c">#acceptor mask :NAP@O&#39;N3 :NAP@HON3</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_donors&quot;</span><span class="p">,</span><span class="s">&quot;prot_donors or (resn NAP and name HON3)&quot;</span><span class="p">)</span>
+    <span class="c">#acceptor mask :NAP@O&#39;N2 :NAP@HON2</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_donors&quot;</span><span class="p">,</span><span class="s">&quot;prot_donors or (resn NAP and name HON2)&quot;</span><span class="p">)</span>
+    <span class="c">#acceptor mask :NAP@N7N  :NAP@H72</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_donors&quot;</span><span class="p">,</span><span class="s">&quot;prot_donors or (resn NAP and name H72)&quot;</span><span class="p">)</span>
+    <span class="c">#acceptor mask :NAP@N7N  :NAP@H71</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_donors&quot;</span><span class="p">,</span><span class="s">&quot;prot_donors or (resn NAP and name H71)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name N1A)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name N3A)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name N7A)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name OA23)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name OA22)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name OA24)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;A2)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;A3)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;A4)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;A5)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name OPA1)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name OPA2)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name OPN1)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O3P)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name OPN2)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;N5)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;N4)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;N3)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O&#39;N2)&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;prot_acceptors&quot;</span><span class="p">,</span><span class="s">&quot;prot_acceptors or (resn NAP and name O7N)&quot;</span><span class="p">)</span>
+</pre></div>
+<p>After defining such a function, it must be added to the
+<tt class="docutils literal"><span class="pre">do_standard_selections</span></tt> function at the bottom of <tt class="docutils literal"><span class="pre">hbond_definitions.py</span></tt>.</p>
+</div>
+<div class="section">
+<h3 id="documentation-from-the-script">Documentation from the script<a class="headerlink" href="#documentation-from-the-script" title="Permalink to this headline">¶</a></h3>
+<pre>Usage:
+    Run this like:
+
+    pymol -qcr collect_water_bridges.py -- --name=myprotein --dist-cutoff=3.5
+
+    Do not forget the double dashes after the script name.
+
+
+Options:
+  -h, --help            show this help message and exit
+  -n NAME, --name=NAME  Trajectory and topology must be named name.trj and
+                        name.top respectively. [default: nrna]
+  -c CHUNKSIZE, --chunk-size=CHUNKSIZE
+                        How many MD steps to process at a time. If you do too
+                        many at a time, PyMOL will slow down. Too few, and
+                        you're wasting time starting/stopping PyMOL. [default:
+                        500]
+  -s NUMSTEPS, --num-steps=NUMSTEPS
+                        number of steps in your MD trajectory. [default: 5000]
+  -d DISTCUTOFF, --dist-cutoff=DISTCUTOFF
+                        Heavy atom to heavy atom distance cutoff. [default:
+                        4.0]
+  -a ANGLECUTOFF, --angle-cutoff=ANGLECUTOFF
+                        Angle cutoff. If heavy:hydro:heavy angle must be
+                        greater than this. [default: 0.0]</pre>
+</div>
+</div>
+<div class="section">
+<h2 id="phase-2-display-bridging-interactions-py">Phase 2 (display_bridging_interactions.py)<a class="headerlink" href="#phase-2-display-bridging-interactions-py" title="Permalink to this headline">¶</a></h2>
+<div class="section">
+<h3 id="id1">Description<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Phase 1 records data in a water-centric format. That is, interactions
+are recorded and described for each water molecule. Phase 2 inverts
+this, and displays bridging interactions as protein-water-protein
+triplets. There are several subtleties involved in this process, and
+users are strongly advised to read the paper. Among the relevant
+options are:</p>
+<dl class="docutils">
+<dt>minrequireddwelltime</dt>
+<dd>Bridging interactions that do not persist for at
+least this long are ignored</dd>
+<dt>looseness</dt>
+<dd>This allows for gaps in the occupancy of a bridging interaction.
+Suppose a bridging interaction is present for 300 picoseconds,
+absent for 2 picoseconds, and present for another 200 picoseconds.
+If the looseness is greater than or equal to 2 picoseconds, this
+will be treated as a single 502 picosecond interaction.</dd>
+<dt>minocc</dt>
+<dd>Bridging interactions that are absent for substantial percentages of the
+trajectory can be automatically filtered out.</dd>
+<dt>resi-criteria</dt>
+<dd>A complete list of bridging interactions will contain an overwhelming
+amount of information, including many surface interactions in regions
+that may not be interesting to the user. With this option, a user can
+specify a list of residues of interest. Bridging interactions that do not
+involve at least one of these residues are ignored. The input format is
+fairly general (e.g. &#8220;5,6,7-12&#8221;). Users who are comfortable with Python
+can find examples in the code (<tt class="docutils literal"><span class="pre">tool_utils.py</span></tt>) of how to define residue
+groups such as &#8220;loop A&#8221;, etc.</dd>
+</dl>
+</div>
+<div class="section">
+<h3 id="id2">Documentation from the script<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<pre>Usage: display_bridging_interactions.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -n NAME, --name=NAME  Trajectory and topology must be named name.trj and
+                        name.top respectively. [default: nrna]
+  -t TIMESTEP, --timestep=TIMESTEP
+                        trajectory timestep in picoseconds. [default: 5]
+  -m MINREQUIREDDWELLTIME, --min-dwell-time=MINREQUIREDDWELLTIME
+                        minimum required dwell time. [default: 3]
+  -l LOOSENESS, --looseness=LOOSENESS
+                        looseness. [default: 2]
+  -d DISTCUTOFF, --dist-cutoff=DISTCUTOFF
+                        Heavy atom to heavy atom distance cutoff. [default:
+                        3.5]
+  -a ANGLECUTOFF, --angle-cutoff=ANGLECUTOFF
+                        Angle cutoff. If heavy:hydro:heavy angle must be
+                        greater than this. [default: 0.0]
+  -o MINOCC, --min-occ=MINOCC
+                        Minimum percentage of the trajectory for which this
+                        interaction must be occupied. [default: 0.4]
+  -r DIR, --dir=DIR     Directory in which the name_hbond_*_*.txt files are
+                        located. [default: .]
+  -R RESI_CRITERIA, --resi-criteria=RESI_CRITERIA
+                        Restrict the output to BWIs where at least one side
+                        involves a residue in this list. [default: none]</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3>Table Of Contents</h3>
+            <ul>
+<li><a class="reference" href="">Bridging-water analysis</a><ul>
+<li><a class="reference" href="#executive-summary">Executive Summary</a></li>
+<li><a class="reference" href="#phase-1-collect-water-bridges-py">Phase 1 (collect_water_bridges.py)</a><ul>
+<li><a class="reference" href="#description">Description</a></li>
+<li><a class="reference" href="#defining-new-ligands">Defining new ligands</a></li>
+<li><a class="reference" href="#documentation-from-the-script">Documentation from the script</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#phase-2-display-bridging-interactions-py">Phase 2 (display_bridging_interactions.py)</a><ul>
+<li><a class="reference" href="#id1">Description</a></li>
+<li><a class="reference" href="#id2">Documentation from the script</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="MDProperties.html" title="previous chapter">Graphical display of MD properties over time</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="HydrogenBonding.html" title="next chapter">Hydrogen Bonding</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/BridgingWater.txt">Show Source</a></li>
+            </ul>
+            <h3>Quick search</h3>
+            <form class="search" action="search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="HydrogenBonding.html" title="Hydrogen Bonding"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="MDProperties.html" title="Graphical display of MD properties over time"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyPAT v1.0 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2008, Michael G. Lerner, Steven A. Spronk, Heather A. Carlson.
+      Last updated on Oct 14, 2008.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+    </div>
+  </body>
+</html>
