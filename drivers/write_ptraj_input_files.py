@@ -110,5 +110,16 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
                             write_covar=options.write_covar,
                             pdb_ptraj_header=pdb_ptraj_header,
                             )
+    write_ptraj_input_files(dir_containing_ptraj_files=options.outputdir,
+                            ptraj_output_dir=os.path.join(options.outputdir,options.structurename),
+                            filename_prefix=options.structurename,
+                            desired=desired,
+                            ps_per_frame=options.ps,
+                            ptraj_header=ptraj_header,
+                            fname_template='calculate_'+options.structurename+'_%s_correl_and_covar.ptraj',
+                            write_out_pdb_file=os.path.join(options.outputdir,options.structurename+'_ref.pdb.1'),
+                            write_covar=options.write_covar,
+                            pdb_ptraj_header=pdb_ptraj_header,
+                            )
     
     

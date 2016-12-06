@@ -139,7 +139,7 @@ The html file will be called <struct>BigAnimatedMovies.html.
 </html>
 '''
     fname =os.path.join(options.outputdir,options.structurename+'BigAnimatedMovies.html')
-    f = file(fname,'w')
+    f = open(fname,'w')
     print("WRITING",fname)
     f.write(html_txt)
     f.close()
