@@ -90,8 +90,8 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
     if options.align in 'none None NONE no NO No'.split():
         pass
     elif options.align == 'all':
-        ptraj_header += 'center :1-160 mass origin'
-        ptraj_header += 'image origin center'
+        ptraj_header += 'center :1-160 mass origin\n'
+        ptraj_header += 'image origin center\n'
         ptraj_header += 'rms first *\n'
         pdb_ptraj_header += 'rms first *\n'
     else:
