@@ -47,13 +47,18 @@ mkdir ptraj_files/structure
 #export STOP=2500
 #export START=75500
 #export STOP=90500
+#export START=500
+#export STOP=15500
+#export START=500
+#export STOP=100500
+
 export START=500
-export STOP=15500
+export STOP=10500
 export WSIZE=1000
 export WSPACE=500
 
 export TRAJS=''
-for i in `seq 75 90`; do export TRAJS=$TRAJS,step5_$i.nc; done
+for i in `seq 1 10`; do export TRAJS=$TRAJS,step5_$i.nc; done
 export TRAJS=${TRAJS:1}
 echo $TRAJS
 
