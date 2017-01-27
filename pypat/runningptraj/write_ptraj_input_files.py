@@ -2,6 +2,64 @@
 
 import os
 
+def write_ptraj_input_files_combined(dir_containing_ptraj_files,
+                                     ptraj_output_dir,filename_prefix,desired,ps_per_frame,ptraj_header,fname_template,
+                                     write_covar,
+                                     write_out_pdb_file=None,pdb_ptraj_header=None
+                                 ):
+    """Just like `write_ptraj_input_files` except that we combine all
+    of the ptraj commands into a single file. This is significantly
+    more efficient in terms of file IO, which you start to notice with
+    longer trajectories.
+    """
+    #
+    # each frame is ps_per_frame ps, so we can turn the human-readable things in the 'desired'
+    # list into the appropriate frames for the ptraj files.
+    #
+    txt = ptraj_header
+    
+    for (start,stop,name) in desired:
+        start = int(start[:-2])
+        stop =  int(stop[:-2])
+        if start != 1:
+            start = int(start/ps_per_frame)
+        stop = int(stop/ps_per_frame)
+        fname = fname_template % name
+        #print fname
+        if write_covar:
+            txt += '''
+matrix correl out %s/%s_%s_all_atom_correlmat.dat start %s stop %s byatom
+matrix covar out %s/%s_%s_all_atom_covarmat.dat start %s stop %s
+matrix correl out %s/%s_%s_byres_correlmat.dat start %s stop %s byres
+average  %s/%s_%s_average.pdb start %s stop %s pdb
+    '''%(ptraj_output_dir,filename_prefix,name,start,stop,
+         ptraj_output_dir,filename_prefix,name,start,stop,
+         ptraj_output_dir,filename_prefix,name,start,stop,
+         ptraj_output_dir,filename_prefix,name,start,stop,
+         )
+        else:
+            txt +=  '''
+matrix correl out %s/%s_%s_all_atom_correlmat.dat start %s stop %s byatom
+matrix correl out %s/%s_%s_byres_correlmat.dat start %s stop %s byres
+average  %s/%s_%s_average.pdb start %s stop %s pdb
+    '''%(ptraj_output_dir,filename_prefix,name,start,stop,
+         ptraj_output_dir,filename_prefix,name,start,stop,
+         ptraj_output_dir,filename_prefix,name,start,stop,
+         )
+            
+    txt += 'go\n'
+    open(os.path.join(dir_containing_ptraj_files,fname),'w').write(txt)
+
+    if write_out_pdb_file:
+        txt = pdb_ptraj_header + '''
+trajout %s pdb
+go
+'''%write_out_pdb_file
+        open(os.path.join(dir_containing_ptraj_files,'write_%s_ref_pdb.ptraj'%filename_prefix),'w').write(txt)
+        
+        
+
+
 def write_ptraj_input_files(dir_containing_ptraj_files,
                             ptraj_output_dir,filename_prefix,desired,ps_per_frame,ptraj_header,fname_template,
                             write_covar,

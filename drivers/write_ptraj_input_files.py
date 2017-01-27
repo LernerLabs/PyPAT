@@ -2,7 +2,7 @@
 import os,sys
 
 if __name__ == '__main__':
-    from pypat.runningptraj.write_ptraj_input_files import write_ptraj_input_files
+    from pypat.runningptraj.write_ptraj_input_files import write_ptraj_input_files, write_ptraj_input_files_combined
     from pypat import tool_utils
     from optparse import OptionParser
 
@@ -101,7 +101,7 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
     
         
         
-    write_ptraj_input_files(dir_containing_ptraj_files=options.outputdir,
+    write_ptraj_input_files_combined(dir_containing_ptraj_files=options.outputdir,
                             ptraj_output_dir=os.path.join(options.outputdir,options.structurename),
                             filename_prefix=options.structurename,
                             desired=desired,
@@ -112,7 +112,7 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
                             write_covar=options.write_covar,
                             pdb_ptraj_header=pdb_ptraj_header,
                             )
-    write_ptraj_input_files(dir_containing_ptraj_files=options.outputdir,
+    write_ptraj_input_files_combined(dir_containing_ptraj_files=options.outputdir,
                             ptraj_output_dir=os.path.join(options.outputdir,options.structurename),
                             filename_prefix=options.structurename,
                             desired=desired,
