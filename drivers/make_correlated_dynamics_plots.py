@@ -1,3 +1,4 @@
+#!/cluster/home2/mglerner/anaconda3/bin/python
 #!/usr/bin/env python
 
 '''
@@ -22,7 +23,7 @@ output-dir/images together and move that to the other machine.
     tool_utils.add_standard_options(parser)
     tool_utils.add_window_options(parser)
 
-    parser.add_option("--cmap",dest="cmap",default="Normal",
+    parser.add_option("--cmap",dest="cmap",default="RdBu_r",
                       help="Color map to use when making the plots. Our custom cmaps are Normal and Scaled.  Standard matplotlib cmaps %s are also supported."%[m for m in list(pylab.cm.datad.keys()) if not m.endswith("_r")] + "[default: %default]",
                       )
                       

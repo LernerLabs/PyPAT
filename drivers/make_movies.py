@@ -1,3 +1,4 @@
+#!/cluster/home2/mglerner/anaconda3/bin/python
 #!/usr/bin/env python
 
 import sys,os,glob
@@ -22,7 +23,8 @@ The html file will be called <struct>BigAnimatedMovies.html.
 
     tool_utils.add_standard_options(parser)
     parser.add_option('--plot-types',dest="plottypes",
-                      default='ca avg max min abs straight mainheavy allheavy sidechainhbond hbond'.split(),
+                      #default='ca avg max min abs straight mainheavy allheavy sidechainhbond hbond'.split(),
+                      default='straight mainheavy'.split(),
                       type="strlist",
                       help="Comma-separated list of plot types.  [default: %default]",
                       )
@@ -92,7 +94,12 @@ The html file will be called <struct>BigAnimatedMovies.html.
         if not filenames:
             print("COULD NOT FIND files for",pattern)
             continue
+
+        #ture, 55.00 ns - 65.00 n
+        filenames = [(float(i.split(' ns ')[0].split()[-1]),i) for i in filenames]
         filenames.sort()
+        filenames = [fn for (i,fn) in filenames]
+        #filenames.sort()
         prog = 'convert'
         print(filenames)
         #sys.exit()

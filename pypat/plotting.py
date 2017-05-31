@@ -7,7 +7,8 @@ TODO:
 2) Possibly move the cmap lookup to tool_utils.
 
 """
-
+import matplotlib as mpl
+mpl.use('Agg')
 from .sentinel_map import SentinelMap,SentinelNorm
 import glob
 #import matplotlib.numerix.ma as ma
@@ -108,7 +109,12 @@ for map in [m for m in list(pylab.cm.datad.keys()) if not m.endswith("_r")]:
                                      SentinelNorm(vmin=-1.0,vmax=1.0)#,ignore=[sentinel1,sentinel2,])
                                      #SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
                                     )
-
+for map in ['viridis', 'inferno', 'plasma', 'coolwarm', 'RdBu_r']:
+    sentinel_maps_and_norms[map] = (SentinelMap(pylab.cm.get_cmap(map)),#sentinels={sentinel1:rgb1,sentinel2:rgb2}),
+                                    SentinelNorm(vmin=-1.0,vmax=1.0)#,ignore=[sentinel1,sentinel2,])
+                                    #SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
+                                    )
+        
                                      
 
 def make_several_correl_plots(struct,
