@@ -3,14 +3,21 @@
 import os
 
 def write_ptraj_input_files_combined(dir_containing_ptraj_files,
-                                     ptraj_output_dir,filename_prefix,desired,ps_per_frame,ptraj_header,fname_template,
+                                     ptraj_output_dir,filename_prefix,desired,ps_per_frame,
+                                     ptraj_header,ptraj_system_setup,
+                                     fname_template,
                                      write_covar,
-                                     write_out_pdb_file=None,pdb_ptraj_header=None
+                                     write_out_pdb_file=None,
+                                     pdb_ptraj_header=None,
+                                     pdb_ptraj_system_setup=None,
                                  ):
     """Just like `write_ptraj_input_files` except that we combine all
     of the ptraj commands into a single file. This is significantly
     more efficient in terms of file IO, which you start to notice with
     longer trajectories.
+
+    Note that things like stripping atoms, rms, etc. need to happen with each
+    run command, so they go in ptraj_system_setup, not ptraj_header.
     """
     #
     # each frame is ps_per_frame ps, so we can turn the human-readable things in the 'desired'
@@ -26,6 +33,7 @@ def write_ptraj_input_files_combined(dir_containing_ptraj_files,
         stop = int(stop/ps_per_frame)
         fname = fname_template % name
         #print fname
+        txt += '\n%s\n'%(ptraj_system_setup)
         if write_covar:
             txt += '''
 matrix correl out %s/%s_%s_all_atom_correlmat.dat start %s stop %s byatom
@@ -52,7 +60,7 @@ run
     open(os.path.join(dir_containing_ptraj_files,fname),'w').write(txt)
 
     if write_out_pdb_file:
-        txt = pdb_ptraj_header + '''
+        txt = pdb_ptraj_header + pdb_ptraj_system_setup + '''
 trajout %s pdb
 go
 '''%write_out_pdb_file
@@ -64,7 +72,10 @@ go
 def write_ptraj_input_files(dir_containing_ptraj_files,
                             ptraj_output_dir,filename_prefix,desired,ps_per_frame,ptraj_header,fname_template,
                             write_covar,
-                            write_out_pdb_file=None,pdb_ptraj_header=None):
+                            write_out_pdb_file=None,
+                            pdb_ptraj_header=None,
+                            pdb_ptraj_system_setup=None,
+):
     """
     dir_containing_ptraj_files is the place where we'll write out the ptraj
                                input files
@@ -84,6 +95,11 @@ def write_ptraj_input_files(dir_containing_ptraj_files,
                  trajectories, strip out all of the atoms you don't care
                  about and align things.  See an example below.
 
+
+    ptraj_system_setup Note that things like stripping atoms, rms, etc. need to
+                 happen with each run command, so they go in ptraj_system_setup,
+                 not ptraj_header.
+
     write_covar if this is true, we'll write out the covariance matrix.  it's
                 a big matrix that we don't always use, so we usually don't
                 write it out.
@@ -96,6 +112,8 @@ def write_ptraj_input_files(dir_containing_ptraj_files,
     pdb_ptraj_header is the ptraj header we will use to write out that pdb file.
                      It really only needs to read in the first state of the
                      first mdcrd file.
+
+    pdb_ptraj_system_setup see comments on system_setup above
      
     """
     #
@@ -110,6 +128,7 @@ def write_ptraj_input_files(dir_containing_ptraj_files,
         stop = int(stop/ps_per_frame)
         fname = fname_template % name
         #print fname
+        txt += '\n%s\n'%(ptraj_system_setup)
         if write_covar:
             txt = ptraj_header +  '''
 matrix correl out %s/%s_%s_all_atom_correlmat.dat start %s stop %s byatom
@@ -136,7 +155,7 @@ go
         open(os.path.join(dir_containing_ptraj_files,fname),'w').write(txt)
 
     if write_out_pdb_file:
-        txt = pdb_ptraj_header + '''
+        txt = pdb_ptraj_header + pdb_ptraj_system_setup + '''
 trajout %s pdb
 go
 '''%write_out_pdb_file

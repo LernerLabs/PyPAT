@@ -63,6 +63,7 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
     #
     # Build up the ptraj header.
     # 1) read in the mdcrd files
+    # Figure out how to set up the system (this can't go in the header because it gets repeated with each output command)
     # 2) strip things
     # 3) rms vs. first one
     #
@@ -70,6 +71,8 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
     # else.  Otherwise, it tries to align things with the waters, etc.
     # and all of your correlations will be totally wrong.
     #
+
+    ptraj_system_setup = ''
     ptraj_header = ''
     pdb_ptraj_header = ''
     pdb_ptraj_header += 'trajin %s 1 1 1\n\n'%os.path.join(options.inputdir,options.mdcrd[0])
@@ -79,50 +82,54 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
     ptraj_header += '\n'
 
     if options.strip_hydros:
-        ptraj_header += 'strip @H*\n'
-        pdb_ptraj_header += 'strip @H*\n'
+        ptraj_system_setup += 'strip @H*\n'
+        pdb_ptraj_system_setup += 'strip @H*\n'
     if options.strip_waters:
-        ptraj_header += 'strip :WAT\n'
-        pdb_ptraj_header += 'strip :WAT\n'
+        ptraj_system_setup += 'strip :WAT\n'
+        pdb_ptraj_system_setup += 'strip :WAT\n'
     for strip in options.other_ptraj_strips:
-        ptraj_header += 'strip %s\n'%strip
-        pdb_ptraj_header += 'strip %s\n'%strip
+        ptraj_system_setup += 'strip %s\n'%strip
+        pdb_ptraj_system_setup += 'strip %s\n'%strip
 
     if options.align in 'none None NONE no NO No'.split():
         pass
     elif options.align == 'all':
-        ptraj_header += 'center :1-160 mass origin\n'
-        ptraj_header += 'image origin center\n'
-        ptraj_header += 'rms first *\n'
-        pdb_ptraj_header += 'rms first *\n'
+        ptraj_system_setup += 'center :1-160 mass origin\n'
+        ptraj_system_setup += 'image origin center\n'
+        ptraj_system_setup += 'rms first *\n'
+        pdb_ptraj_system_setup += 'rms first *\n'
     else:
-        ptraj_header += 'rms first %s\n'%options.align
-        pdb_ptraj_header += 'rms first %s\n'%options.align
+        ptraj_system_setup += 'rms first %s\n'%options.align
+        pdb_ptraj_system_setup += 'rms first %s\n'%options.align
             
     
         
         
     write_ptraj_input_files_combined(dir_containing_ptraj_files=options.outputdir,
-                            ptraj_output_dir=os.path.join(options.outputdir,options.structurename),
-                            filename_prefix=options.structurename,
-                            desired=desired,
-                            ps_per_frame=options.ps,
-                            ptraj_header=ptraj_header,
-                            fname_template='calculate_'+options.structurename+'_%s_correl_and_covar.ptraj',
-                            write_out_pdb_file=os.path.join(options.outputdir,options.structurename+'_ref.pdb'),
-                            write_covar=options.write_covar,
-                            pdb_ptraj_header=pdb_ptraj_header,
+                                     ptraj_output_dir=os.path.join(options.outputdir,options.structurename),
+                                     filename_prefix=options.structurename,
+                                     desired=desired,
+                                     ps_per_frame=options.ps,
+                                     ptraj_header=ptraj_header,
+                                     ptraj_system_setup=ptraj_system_setup,
+                                     fname_template='calculate_'+options.structurename+'_%s_correl_and_covar.ptraj',
+                                     write_out_pdb_file=os.path.join(options.outputdir,options.structurename+'_ref.pdb'),
+                                     write_covar=options.write_covar,
+                                     pdb_ptraj_header=pdb_ptraj_header,
+                                     pdb_ptraj_system_setup=pdb_ptraj_system_setup,
                             )
     write_ptraj_input_files_combined(dir_containing_ptraj_files=options.outputdir,
-                            ptraj_output_dir=os.path.join(options.outputdir,options.structurename),
-                            filename_prefix=options.structurename,
-                            desired=desired,
-                            ps_per_frame=options.ps,
-                            ptraj_header=ptraj_header,
-                            fname_template='calculate_'+options.structurename+'_%s_correl_and_covar.ptraj',
-                            write_out_pdb_file=os.path.join(options.outputdir,options.structurename+'_ref.pdb.1'),
-                            write_covar=options.write_covar,
-                            pdb_ptraj_header=pdb_ptraj_header,
-                            )
+                                     ptraj_output_dir=os.path.join(options.outputdir,options.structurename),
+                                     filename_prefix=options.structurename,
+                                     desired=desired,
+                                     ps_per_frame=options.ps,
+                                     ptraj_header=ptraj_header,
+                                     ptraj_system_setup=ptraj_system_setup,
+                                     fname_template='calculate_'+options.structurename+'_%s_correl_and_covar.ptraj',
+                                     write_out_pdb_file=os.path.join(options.outputdir,options.structurename+'_ref.pdb.1'),
+                                     write_covar=options.write_covar,
+                                     pdb_ptraj_header=pdb_ptraj_header,
+                                     pdb_ptraj_system_setup=pdb_ptraj_system_setup,
+                                 )
     
     
