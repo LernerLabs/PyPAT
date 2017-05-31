@@ -75,6 +75,7 @@ reference structure later on.  It will live in <outputdir>/<structure>_ref.pdb.1
     ptraj_system_setup = ''
     ptraj_header = ''
     pdb_ptraj_header = ''
+    pdb_ptraj_system_setup = ''
     pdb_ptraj_header += 'trajin %s 1 1 1\n\n'%os.path.join(options.inputdir,options.mdcrd[0])
     
     for mdcrd in options.mdcrd:
