@@ -114,8 +114,6 @@ for map in ['viridis', 'inferno', 'plasma', 'coolwarm', 'RdBu_r']:
                                     SentinelNorm(vmin=-1.0,vmax=1.0)#,ignore=[sentinel1,sentinel2,])
                                     #SentinelNorm(ignore=[sentinel1,sentinel2,],vmin=-1.0,vmax=1.0)
                                     )
-        
-                                     
 
 def make_several_correl_plots(struct,
                               times,
